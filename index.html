@@ -1,344 +1,186 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="light">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق المساعد الجامعي الشامل 🎓</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>المساعد الدراسي الجامعي 🎓</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-primary: #0F172A;
-            --text-secondary: #64748B;
-            --accent: #7C3AED;
-            --accent-hover: #6D28D9;
-            --border: #E2E8F0;
-            --shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.1);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #F8FAFC; color: #0F172A; display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        html.dark {
-            --bg-primary: #0F172A;
-            --bg-card: #1E293B;
-            --text-primary: #F8FAFC;
-            --text-secondary: #94A3B8;
-            --accent: #8B5CF6;
-            --accent-hover: #7C3AED;
-            --border: #334155;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        /* القائمة الجانبية (Sidebar) */
+        aside {
+            width: 260px; background: #6D28D9; color: white; display: flex; flex-direction: column;
+            justify-content: space-between; padding: 25px 15px; position: fixed; height: 100vh; left: 0; top: 0;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; transition: background 0.3s, color 0.3s; }
-        body { background: var(--bg-primary); color: var(--text-primary); padding: 20px; min-height: 100vh; }
+        .sidebar-top h2 { font-size: 0.9rem; color: #DDD6FE; margin-bottom: 20px; padding-right: 10px; }
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .nav-links li a {
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: white; text-decoration: none;
+            border-radius: 12px; font-weight: 500; font-size: 0.95srem; transition: 0.2s;
+        }
+        .nav-links li.active a, .nav-links li a:hover { background: white; color: #6D28D9; font-weight: 700; }
         
-        #pinModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: var(--bg-card); padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px;
-            box-shadow: var(--shadow); border: 1px solid var(--border);
+        .sidebar-box {
+            background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 14px; font-size: 0.8rem; line-height: 1.5; color: #F3E8FF;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        header {
-            display: flex; justify-content: space-between; align-items: center; padding: 20px;
-            background: var(--bg-card); border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: var(--shadow);
-        }
-        .theme-toggle { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card {
-            background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border);
-            box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
-        }
-        .card h2 { color: var(--accent); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
-
-        input, select, textarea {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
-            background: var(--bg-primary); color: var(--text-primary); outline: none; font-size: 14px;
+        /* المحتوى الرئيسي (Main Content) */
+        main {
+            margin-left: 0; margin-right: 260px; /* بما أن الاتجاه RTL، فالقائمة على اليمين برمجياً أو نعكسها */
+            flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 25px; width: calc(100% - 260px);
         }
 
-        .btn {
-            background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px;
-            cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s;
-        }
-        .btn:hover { background: var(--accent-hover); }
-        .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
-        audio { width: 100%; margin-top: 10px; border-radius: 8px; }
+        /* تعديل لأن العرض RTL باللغة العربية: القائمة تكون على اليمين */
+        body { direction: rtl; }
+        aside { left: auto; right: 0; }
+        main { margin-right: 0; margin-left: 260px; }
 
-        .quiz-option {
-            background: var(--bg-primary); border: 1px solid var(--border); padding: 10px; border-radius: 8px;
-            cursor: pointer; margin-top: 6px; text-align: right;
+        @media(max-width: 900px) {
+            aside { width: 70px; padding: 20px 8px; }
+            aside h2, .nav-links span, .sidebar-box { display: none; }
+            main { margin-left: 70px; width: calc(100% - 70px); padding: 15px; }
         }
-        .quiz-option:hover { border-color: var(--accent); }
-        .correct { background: #10B981 !important; color: white; border-color: #10B981; }
-        .wrong { background: #EF4444 !important; color: white; border-color: #EF4444; }
+
+        /* البانر الرئيسي الكبير */
+        .hero-banner {
+            background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+            color: white; border-radius: 24px; padding: 40px; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+        }
+        .hero-banner h1 { font-size: 2rem; font-weight: 700; max-width: 600px; line-height: 1.3; }
+        .hero-banner p { color: #E9D5FF; font-size: 0.95rem; max-width: 550px; }
+        .hero-btn {
+            background: white; color: #6D28D9; border: none; padding: 10px 20px; border-radius: 12px;
+            font-weight: 700; cursor: pointer; width: fit-content; display: flex; align-items: center; gap: 8px; margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .hero-btn:hover { background: #F3E8FF; }
+
+        /* بطاقات الإحصائيات الثلاث */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card {
+            background: #1E293B; color: white; padding: 20px; border-radius: 18px; display: flex;
+            justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .stat-card .number { font-size: 1.5rem; font-weight: 700; }
+        .stat-card .label { font-size: 0.85rem; color: #94A3B8; margin-top: 5px; }
+        .stat-icon { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; font-size: 1.2rem; }
+
+        /* قسم إضافة مواد ومحتوى المراحل */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .section-header h3 { font-size: 1.2rem; font-weight: 700; }
+        .add-material-link { color: #6D28D9; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media(max-width: 900px) { .content-grid { grid-template-columns: 1fr; } }
+
+        .stage-card {
+            background: #1E293B; color: white; padding: 25px; border-radius: 20px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .stage-card h4 { font-size: 1.1rem; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .semester-row { display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.9rem; padding: 8px 0; cursor: pointer; }
+        .semester-row:hover { color: white; }
+
+        .recent-files {
+            background: white; border: 1px solid #E2E8F0; padding: 25px; border-radius: 20px; display: flex; flex-direction: column; gap: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة القفل بالرمز السرّي -->
-    <div id="pinModal">
-        <div class="modal-content">
-            <h2 style="color: var(--accent); margin-bottom: 15px;">🔒 الرمز السرّي الخاص بك</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق (الافتراضي: 1234)</p>
-            <input type="password" id="pinInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 15px;">
-            <button class="btn" style="width: 100%;" onclick="unlockApp()">فتح التطبيق</button>
+    <!-- القائمة الجانبية (Sidebar) مطابقة للصورة -->
+    <aside>
+        <div class="sidebar-top">
+            <h2>مساحة التعلُّم</h2>
+            <ul class="nav-links">
+                <li class="active"><a href="#">📖 الرئيسية</a></li>
+                <li><a href="#">📚 المواد</a></li>
+                <li><a href="#">📄 ملفات PDF</a></li>
+                <li><a href="#">🎧 المحاضرات</a></li>
+                <li><a href="#">✨ الذكاء الاصطناعي</a></li>
+                <li><a href="#">🔍 مصادر علمية</a></li>
+            </ul>
         </div>
-    </div>
-
-    <!-- 2. الهيدر -->
-    <header>
-        <div>
-            <h1 style="font-size: 1.5rem;">المساعد الجامعي الشامل 🎓</h1>
-            <p style="color: var(--text-secondary); font-size: 0.85rem;" id="userEmailDisplay">تسجيل الدخول بالإيميل</p>
+        <div class="sidebar-box">
+            <p>📌 ملفاتك وتسجيلاتك محفوظة على هذا الجهاز. قد يستخدم المتصفح خدمة خارجية عند تفعيل التفريغ الحي.</p>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙</button>
-    </header>
+    </aside>
 
-    <div class="grid">
-        <!-- 3. حساب الطالب وإدارة الرمز السري -->
-        <div class="card">
-            <h2>📧 حساب الطالب والأمان</h2>
-            <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
-            <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
-            
-            <hr style="border: 0; border-top: 1px solid var(--border); margin: 5px 0;">
-            
-            <p style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تغيير رمز الـ PIN (4 أرقام):</p>
-            <input type="password" id="oldPin" maxlength="4" placeholder="الرمز القديم...">
-            <input type="password" id="newPin" maxlength="4" placeholder="الرمز الجديد...">
-            <button class="btn btn-outline" onclick="changePin()">تحديث الرمز السري</button>
+    <!-- المحتوى الرئيسي -->
+    <main>
+        <!-- البانر البنفسجي الكبير -->
+        <div class="hero-banner">
+            <h1>مساعدك الدراسي لكل التخصصات.<br>كل محاضرة وملف، في مكان تعرفه.</h1>
+            <p>نظّم موادك، اقرأ مراجعك، وسجّل شرح المحاضرة—بخصوصية محلية على جهازك.</p>
+            <button class="hero-btn" onclick="alert('اضغط لرفع ملف PDF جديد')">
+                <span>➕ أضف ملف PDF</span>
+            </button>
         </div>
 
-        <!-- 4. مكتبة الملازم واختيار الأقسام العراقية الشاملة -->
-        <div class="card">
-            <h2>📚 مكتبة الملازم والـ PDF</h2>
-            <select id="majorSelect">
-                <option value="">اختر الاختصاص أو الكلية...</option>
-                <optgroup label="الهندسة والتكنولوجيا">
-                    <option>هندسة البوليمرات والصناعات البتروكيمياوية</option>
-                    <option>هندسة الطيران والميكانيك</option>
-                    <option>الهندسة المدنية</option>
-                    <option>هندسة العمارة</option>
-                    <option>الهندسة الكهربائية والإلكترونية</option>
-                    <option>هندسة الحاسوب والاتصالات</option>
-                    <option>هندسة النفط والغاز</option>
-                    <option>هندسة الكيمياوية</option>
-                </optgroup>
-                <optgroup label="المجموعة الطبية والصحية">
-                    <option>الطب البشري</option>
-                    <option>طب الأسنان</option>
-                    <option>الصيدلة</option>
-                    <option>التقنيات الصحية والطبية</option>
-                    <option>التمريض</option>
-                </optgroup>
-                <optgroup label="العلوم الصرفة والتطبيقية">
-                    <option>علوم الحاسوب وتكنولوجيا المعلومات</option>
-                    <option>علوم الرياضيات والكمبيوتر</option>
-                    <option>علوم الفيزياء والتقنيات</option>
-                    <option>علوم الكيمياء التطبيقية</option>
-                    <option>علوم الحياة (البيولوجي)</option>
-                </optgroup>
-                <optgroup label="القانون والإدارة والعلوم الإنسانية">
-                    <option>القانون وحقوق الإنسان</option>
-                    <option>إدارة الأعمال واقتصاديات</option>
-                    <option>اللغة الإنجليزية وآدابها</option>
-                    <option>التربية والتعليم</option>
-                </optgroup>
-            </select>
-            <select id="stageSelect">
-                <option>المرحلة الأولى</option>
-                <option>المرحلة الثانية</option>
-                <option>المرحلة الثالثة</option>
-                <option>المرحلة الرابعة</option>
-            </select>
-            <input type="file" accept="application/pdf">
-            <button class="btn btn-outline" onclick="alert('تم إرفاق الملزمة بنجاح!')">رفع الملزمة</button>
-        </div>
-
-        <!-- 5. قسم الاختبارات المخصص بالذكاء الاصطناعي -->
-        <div class="card">
-            <h2>📝 اختبار الذكاء الاصطناعي (AI Quiz)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">اختر المادة أو اكتب موضوع المحاضرة ليقوم الذكاء الاصطناعي بتوليد سؤال اختبار:</p>
-            <input type="text" id="quizTopicInput" placeholder="مثال: ميكانيكا الموائع، بوليمرات، تفاعلات...">
-            <button class="btn" onclick="generateAiQuiz()">✨ توليد سؤال اختبار جديد</button>
-            <div id="aiQuizContainer" style="margin-top: 10px; display: none;">
-                <p id="aiQuestionText" style="font-weight: 600; margin-bottom: 10px;"></p>
-                <div id="aiOptionsList"></div>
-                <div id="aiQuizFeedback" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></div>
+        <!-- بطاقات الإحصائيات (3 خانات مثل الصورة) -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>
+                    <div class="number">0</div>
+                    <div class="label">تسجيل محاضرة</div>
+                </div>
+                <div class="stat-icon">🎙️</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="number">0</div>
+                    <div class="label">ملف محفوظ</div>
+                </div>
+                <div class="stat-icon">📄</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="number">0</div>
+                    <div class="label">مادة منظمة</div>
+                </div>
+                <div class="stat-icon">📁</div>
             </div>
         </div>
 
-        <!-- 6. الذكاء الاصطناعي والتلخيص -->
-        <div class="card">
-            <h2>✨ تلخيص المحاضرات والملازم</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="ضع نص الملزمة هنا لتلخيصه واستخراج النقاط المهمة..."></textarea>
-            <button class="btn" onclick="summarizeContent()">📝 تلخيص المادة</button>
-            <div id="aiResult" style="margin-top: 10px; font-size: 0.9rem; color: var(--accent);"></div>
+        <!-- قسم إضافة مواد ومحتوى المرحلة الأولى -->
+        <div class="section-header">
+            <h3>ابدأ بإضافة مواد تخصصك</h3>
+            <a href="#" class="add-material-link">إضافة مواد ‹</a>
         </div>
 
-        <!-- 7. مسجل الصوت -->
-        <div class="card">
-            <h2>🎙️ تسجيل المحاضرة الصوتية</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">سجل صوت الدكتور للاستماع إليه بالخلفية بجانب التطبيقات:</p>
-            <button class="btn" id="recordBtn" onclick="toggleRecording()">🎤 بدء تسجيل المحاضرة</button>
-            <audio id="audioPlayer" controls style="display:none;"></audio>
+        <div class="content-grid">
+            <!-- المرحلة الأولى -->
+            <div class="stage-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4>المرحلة الأولى</h4>
+                    <span style="font-size: 0.85rem; color: #94A3B8;">0 مادة</span>
+                </div>
+                <div class="semester-row">
+                    <span>الفصل الأول</span>
+                    <span>‹</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748B;">لا توجد مواد بعد</p>
+                <div class="semester-row" style="margin-top: 10px;">
+                    <span>الفصل الثاني</span>
+                    <span>‹</span>
+                </div>
+            </div>
+
+            <!-- آخر الملفات والمكتبة -->
+            <div class="recent-files">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="color: #0F172A;">آخر الملفات</h4>
+                    <a href="#" style="color: #6D28D9; text-decoration: none; font-size: 0.85rem; font-weight: 600;">المكتبة ‹</a>
+                </div>
+                <div style="text-align: center; padding: 30px; color: #94A3B8; font-size: 0.9rem;">
+                    📁 لا توجد ملفات مرفقة مؤخراً
+                </div>
+            </div>
         </div>
+    </main>
 
-        <!-- 8. البحث في المصادر الرسمية -->
-        <div class="card">
-            <h2>🔍 المصادر العلمية الرسمية</h2>
-            <input type="text" id="scholarQuery" placeholder="ابحث في الأبحاث والمصادر الأكاديمية...">
-            <button class="btn" onclick="searchScholar()">ابحث في Google Scholar</button>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. PIN Code & Change PIN ---
-        let savedPin = localStorage.getItem('app_pin') || '1234';
-        function unlockApp() {
-            const input = document.getElementById('pinInput').value;
-            if (input === savedPin) {
-                document.getElementById('pinModal').style.display = 'none';
-            } else {
-                alert('الرمز السرّي غير صحيح! (الافتراضي: 1234)');
-            }
-        }
-
-        function changePin() {
-            const oldP = document.getElementById('oldPin').value;
-            const newP = document.getElementById('newPin').value;
-            
-            if (oldP !== savedPin) {
-                alert('الرمز السري القديم غير صحيح!');
-                return;
-            }
-            if (!newP || newP.length !== 4) {
-                alert('يرجى إدخال رمز جديد مكون من 4 أرقام حصراً!');
-                return;
-            }
-            
-            localStorage.setItem('app_pin', newP);
-            savedPin = newP;
-            document.getElementById('oldPin').value = '';
-            document.getElementById('newPin').value = '';
-            alert('تم تغيير الرمز السري بنجاح! احتفظ به جيداً.');
-        }
-
-        // --- 2. Light / Dark Mode ---
-        function toggleTheme() {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark'); html.classList.add('light');
-            } else {
-                html.classList.remove('light'); html.classList.add('dark');
-            }
-        }
-
-        // --- 3. Save Email ---
-        function saveEmail() {
-            const email = document.getElementById('emailInput').value;
-            if (email) {
-                localStorage.setItem('user_email', email);
-                document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-                alert('تم حفظ الحساب بنجاح!');
-            }
-        }
-
-        // --- 4. AI Quiz Generator ---
-        function generateAiQuiz() {
-            const topic = document.getElementById('quizTopicInput').value;
-            const major = document.getElementById('majorSelect').value;
-            if(!topic) {
-                alert('يرجى كتابة اسم المادة أو موضوع المحاضرة أولاً!');
-                return;
-            }
-
-            const container = document.getElementById('aiQuizContainer');
-            const qText = document.getElementById('aiQuestionText');
-            const optList = document.getElementById('aiOptionsList');
-            const feedback = document.getElementById('aiQuizFeedback');
-
-            container.style.display = 'block';
-            qText.innerText = `جاري توليد سؤال ذكي لاختصاص (${major || 'عام'}) في مادة (${topic})...`;
-            optList.innerHTML = '';
-            feedback.innerText = '';
-
-            setTimeout(() => {
-                qText.innerText = `س (من الذكاء الاصطناعي): ما هو التطبيق الأساسي أو المبدأ العلمي لـ "${topic}"؟`;
-                
-                const mockOptions = [
-                    { text: "أ) تحسين الكفاءة التشغيلية وتقليل استهلاك الطاقة والزمن", correct: true },
-                    { text: "ب) زيادة الضغط الحراري بدون تأثير مباشر على المخرجات", correct: false },
-                    { text: "ج) إيقاف التفاعلات الكيميائية والفيزيائية تماماً", correct: false }
-                ];
-
-                optList.innerHTML = mockOptions.map((opt, idx) => `
-                    <div class="quiz-option" onclick="checkAiAnswer(this, ${opt.correct})">${opt.text}</div>
-                `).join('');
-            }, 1200);
-        }
-
-        function checkAiAnswer(element, isCorrect) {
-            const options = document.querySelectorAll('#aiOptionsList .quiz-option');
-            options.forEach(opt => opt.style.pointerEvents = 'none');
-            const feedback = document.getElementById('aiQuizFeedback');
-            if (isCorrect) {
-                element.classList.add('correct');
-                feedback.style.color = '#10B981';
-                feedback.innerText = '✅ إجابة صحيحة، أحسنت!';
-            } else {
-                element.classList.add('wrong');
-                feedback.style.color = '#EF4444';
-                feedback.innerText = '❌ إجابة خاطئة، الخيار الصحيح هو الأول.';
-            }
-        }
-
-        // --- 5. Audio Recorder ---
-        let mediaRecorder; let audioChunks = [];
-        async function toggleRecording() {
-            const btn = document.getElementById('recordBtn');
-            const player = document.getElementById('audioPlayer');
-            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
-                audioChunks = [];
-                btn.innerText = '⏹️ إيقاف التسجيل';
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            } else {
-                mediaRecorder.stop();
-                btn.innerText = '🎤 بدء تسجيل جديد';
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    player.src = URL.createObjectURL(blob);
-                    player.style.display = 'block';
-                };
-            }
-        }
-
-        // --- 6. Scholar Search ---
-        function searchScholar() {
-            const query = document.getElementById('scholarQuery').value;
-            if (query) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`, '_blank');
-        }
-
-        // --- 7. AI Summary ---
-        function summarizeContent() {
-            const text = document.getElementById('aiPrompt').value;
-            const res = document.getElementById('aiResult');
-            if(!text) { alert('الرجاء إدخال النص أولاً'); return; }
-            res.innerText = 'جاري التلخيص بواسطة الذكاء الاصطناعي...';
-            setTimeout(() => {
-                res.innerHTML = '<strong>📌 الملخص الذكي:</strong><br>تم استخلاص أهم النقاط المفتاحية للمحاضرة بنجاح!';
-            }, 1200);
-        }
-
-        window.onload = () => {
-            const email = localStorage.getItem('user_email');
-            if (email) document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-        };
-    </script>
 </body>
 </html>
