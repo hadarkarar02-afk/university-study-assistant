@@ -82,7 +82,7 @@
     <div id="pinModal">
         <div class="modal-content">
             <h2 style="color: var(--accent); margin-bottom: 15px;">🔒 الرمز السرّي الخاص بك</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق</p>
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق (افتراضي: 1234)</p>
             <input type="password" id="pinInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 15px;">
             <button class="btn" style="width: 100%;" onclick="unlockApp()">فتح التطبيق</button>
         </div>
@@ -100,20 +100,46 @@
     <div class="grid">
         <!-- 3. حساب الطالب -->
         <div class="card">
-            <h2>📧 حساب الطالب</h2>
+            <h2>📧 حساب الطالب الجامعي</h2>
             <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
             <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
         </div>
 
-        <!-- 4. مكتبة الملازم والسنوات الأربع -->
+        <!-- 4. مكتبة الملازم واختيار الأقسام العراقية الشاملة -->
         <div class="card">
             <h2>📚 مكتبة الملازم والـ PDF</h2>
             <select id="majorSelect">
-                <option>اختر الاختصاص الجامعي...</option>
-                <option>هندسة البوليمرات والبتروكيمياويات</option>
-                <option>هندسة الطيران والميكانيك</option>
-                <option>الهندسة المدنية والكهربائية</option>
-                <option>العلوم والتكنولوجيا</option>
+                <option value="">اختر الاختصاص أو الكلية...</option>
+                <optgroup label="الهندسة والتكنولوجيا">
+                    <option>هندسة البوليمرات والصناعات البتروكيمياوية</option>
+                    <option>هندسة الطيران والميكانيك</option>
+                    <option>الهندسة المدنية</option>
+                    <option>هندسة العمارة</option>
+                    <option>الهندسة الكهربائية والإلكترونية</option>
+                    <option>هندسة الحاسوب والاتصالات</option>
+                    <option>هندسة النفط والغاز</option>
+                    <option>هندسة الكيمياوية</option>
+                </optgroup>
+                <optgroup label="المجموعة الطبية والصحية">
+                    <option>الطب البشري</option>
+                    <option>طب الأسنان</option>
+                    <option>الصيدلة</option>
+                    <option>التقنيات الصحية والطبية</option>
+                    <option>التمريض</option>
+                </optgroup>
+                <optgroup label="العلوم الصرفة والتطبيقية">
+                    <option>علوم الحاسوب وتكنولوجيا المعلومات</option>
+                    <option>علوم الرياضيات والكمبيوتر</option>
+                    <option>علوم الفيزياء والتقنيات</option>
+                    <option>علوم الكيمياء التطبيقية</option>
+                    <option>علوم الحياة (البيولوجي)</option>
+                </optgroup>
+                <optgroup label="القانون والإدارة والعلوم الإنسانية">
+                    <option>القانون وحقوق الإنسان</option>
+                    <option>إدارة الأعمال واقتصاديات</option>
+                    <option>اللغة الإنجليزية وآدابها</option>
+                    <option>التربية والتعليم</option>
+                </optgroup>
             </select>
             <select id="stageSelect">
                 <option>المرحلة الأولى</option>
@@ -125,23 +151,23 @@
             <button class="btn btn-outline" onclick="alert('تم إرفاق الملزمة بنجاح!')">رفع الملزمة</button>
         </div>
 
-        <!-- 5. قسم الاختبارات التفاعلية (جديد!) -->
-        <div class="card" style="grid-column: span 1;">
-            <h2>📝 اختبار نفسي (Quiz)</h2>
-            <div id="quizContainer">
-                <p id="questionText" style="font-weight: 600; margin-bottom: 10px;">س: ما هو المونومير الأساسي في تصنيع البوليمرات؟</p>
-                <div class="quiz-option" onclick="checkAnswer(this, false)">أ) الإيثيلين الجليكول</div>
-                <div class="quiz-option" onclick="checkAnswer(this, true)">ب) الإيثيلين (للبولي إيثيلين)</div>
-                <div class="quiz-option" onclick="checkAnswer(this, false)">ج) البنزين الخالص</div>
-                <div id="quizFeedback" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></div>
+        <!-- 5. قسم الاختبارات المخصص بالذكاء الاصطناعي -->
+        <div class="card">
+            <h2>📝 اختبار الذكاء الاصطناعي (AI Quiz)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">اختر المادة أو اكتب موضوع المحاضرة ليقوم الذكاء الاصطناعي بتوليد سؤال اختبار خاص بك:</p>
+            <input type="text" id="quizTopicInput" placeholder="مثال: ميكانيكا الموائع، بوليمرات، تفاعلات...">
+            <button class="btn" onclick="generateAiQuiz()">✨ توليد سؤال اختبار جديد</button>
+            <div id="aiQuizContainer" style="margin-top: 10px; display: none;">
+                <p id="aiQuestionText" style="font-weight: 600; margin-bottom: 10px;"></p>
+                <div id="aiOptionsList"></div>
+                <div id="aiQuizFeedback" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></div>
             </div>
-            <button class="btn" style="margin-top: auto;" onclick="nextQuestion()">السؤال التالي ➡️</button>
         </div>
 
         <!-- 6. الذكاء الاصطناعي والتلخيص -->
         <div class="card">
-            <h2>✨ الذكاء الاصطناعي وتلخيص المحاضرات</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="ضع نص الملزمة هنا للتلخيص..."></textarea>
+            <h2>✨ تلخيص المحاضرات والملازم</h2>
+            <textarea id="aiPrompt" rows="3" placeholder="ضع نص الملزمة هنا لتلخيصه واستخراج النقاط المهمة..."></textarea>
             <button class="btn" onclick="summarizeContent()">📝 تلخيص المادة</button>
             <div id="aiResult" style="margin-top: 10px; font-size: 0.9rem; color: var(--accent);"></div>
         </div>
@@ -194,50 +220,55 @@
             }
         }
 
-        // --- 4. Quiz Logic ---
-        const questions = [
-            { q: "ما هو المونومير الأساسي في تصنيع البوليمرات؟", options: ["أ) الإيثيلين الجليكول", "ب) الإيثيلين (للبولي إيثيلين)", "ج) البنزين الخالص"], correct: 1 },
-            { q: "أي من الآتي يعتبر من تفاعلات البلمرة النموذجي؟", options: ["أ) الإضافة والتكاثف", "ب) الانصهار الحراري", "ج) الترسيب الكيميائي"], correct: 0 },
-            { q: "ما هي الوحدة المستخدمة لقياس اللزوجة في البوليمرات؟", options: ["أ) الباسكال", "ب) البواس", "ج) الجول"], correct: 1 }
-        ];
-        let currentQ = 0;
+        // --- 4. AI Quiz Generator Simulation / Smart Quiz ---
+        function generateAiQuiz() {
+            const topic = document.getElementById('quizTopicInput').value;
+            const major = document.getElementById('majorSelect').value;
+            if(!topic) {
+                alert('يرجى كتابة اسم المادة أو موضوع المحاضرة أولاً!');
+                return;
+            }
 
-        function checkAnswer(element, isCorrect) {
-            const options = document.querySelectorAll('.quiz-option');
-            options.forEach(opt => opt.style.pointerEvents = 'none'); // تعطيل الضغط المتكرر
-            
-            const feedback = document.getElementById('quizFeedback');
+            const container = document.getElementById('aiQuizContainer');
+            const qText = document.getElementById('aiQuestionText');
+            const optList = document.getElementById('aiOptionsList');
+            const feedback = document.getElementById('aiQuizFeedback');
+
+            container.style.display = 'block';
+            qText.innerText = `جاري توليد سؤال ذكي لاختصاص (${major || 'عام'}) في مادة (${topic})...`;
+            optList.innerHTML = '';
+            feedback.innerText = '';
+
+            setTimeout(() => {
+                // محاكاة استجابة ذكاء اصطناعي مخصصة حسب الموضوع المدرخل
+                qText.innerText = `س (من الذكاء الاصطناعي): ما هو التطبيق الأساسي أو المبدأ العلمي لـ "${topic}"؟`;
+                
+                const mockOptions = [
+                    { text: "أ) تحسين الكفاءة التشغيلية وتقليل استهلاك الطاقة والزمن", correct: true },
+                    { text: "ب) زيادة الضغط الحراري بدون تأثير مباشر على المخرجات", correct: false },
+                    { text: "ج) إيقاف التفاعلات الكيميائية والفيزيائية تماماً", correct: false }
+                ];
+
+                // خلط الخيارات عشوائياً
+                optList.innerHTML = mockOptions.map((opt, idx) => `
+                    <div class="quiz-option" onclick="checkAiAnswer(this, ${opt.correct})">${opt.text}</div>
+                `).join('');
+            }, 1200);
+        }
+
+        function checkAiAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('#aiOptionsList .quiz-option');
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            const feedback = document.getElementById('aiQuizFeedback');
             if (isCorrect) {
                 element.classList.add('correct');
                 feedback.style.color = '#10B981';
-                feedback.innerText = '✅ إجابة صحيحة بطل!';
+                feedback.innerText = '✅ إجابة صحيحة، أحسنت!';
             } else {
                 element.classList.add('wrong');
                 feedback.style.color = '#EF4444';
-                feedback.innerText = '❌ إجابة خاطئة، حاول في السؤال التالي.';
+                feedback.innerText = '❌ إجابة خاطئة، الخيار الصحيح هو الأول.';
             }
-        }
-
-        function nextQuestion() {
-            currentQ = (currentQ + 1) % questions.length;
-            const qObj = questions[currentQ];
-            document.getElementById('questionText').innerText = "س: " + qObj.q;
-            
-            const container = document.getElementById('quizContainer');
-            // إعادة بناء الخيارات
-            const optionsHtml = qObj.options.map((opt, idx) => `
-                <div class="quiz-option" onclick="checkAnswer(this, ${idx === qObj.correct})">${opt}</div>
-            `).join('');
-            
-            // تحديث محتوى الكارد
-            document.getElementById('questionText').insertAdjacentHTML('afterend', '');
-            // إعادة توليد الخيارات والتقييم
-            const oldOpts = container.querySelectorAll('.quiz-option');
-            oldOpts.forEach(o => o.remove());
-            document.getElementById('quizFeedback').innerText = '';
-            
-            // إضافة الخيارات الجديدة فوق الفيدباك
-            document.getElementById('quizFeedback').insertAdjacentHTML('beforebegin', optionsHtml);
         }
 
         // --- 5. Audio Recorder ---
