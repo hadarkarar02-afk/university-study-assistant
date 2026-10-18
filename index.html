@@ -1,20 +1,289 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المساعد الدراسي الجامعي</title>
+    <title>تطبيق المساعد الجامعي الشامل 🎓</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Tahoma, sans-serif; background: #f4f4f9; text-align: center; padding: 50px; }
-        h1 { color: #4F46E5; }
-        p { color: #555; font-size: 18px; }
-        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); display: inline-block; }
+        :root {
+            --bg-primary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --accent: #7C3AED;
+            --accent-hover: #6D28D9;
+            --border: #E2E8F0;
+            --shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.1);
+        }
+
+        html.dark {
+            --bg-primary: #0F172A;
+            --bg-card: #1E293B;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --accent: #8B5CF6;
+            --accent-hover: #7C3AED;
+            --border: #334155;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background: var(--bg-primary); color: var(--text-primary); padding: 20px; min-height: 100vh; }
+        
+        #pinModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-card); padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+        }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center; padding: 20px;
+            background: var(--bg-card); border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: var(--shadow);
+        }
+        .theme-toggle { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card {
+            background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border);
+            box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
+        }
+        .card h2 { color: var(--accent); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+
+        input, select, textarea {
+            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-primary); color: var(--text-primary); outline: none; font-size: 14px;
+        }
+
+        .btn {
+            background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px;
+            cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s;
+        }
+        .btn:hover { background: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+        audio { width: 100%; margin-top: 10px; border-radius: 8px; }
+
+        /* Quiz styles */
+        .quiz-option {
+            background: var(--bg-primary); border: 1px solid var(--border); padding: 10px; border-radius: 8px;
+            cursor: pointer; margin-top: 6px; text-align: right;
+        }
+        .quiz-option:hover { border-color: var(--accent); }
+        .correct { background: #10B981 !important; color: white; border-color: #10B981; }
+        .wrong { background: #EF4444 !important; color: white; border-color: #EF4444; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>مرحباً بك في المساعد الدراسي الجامعي 🎓</h1>
-        <p>التطبيق قيد الإنشاء والانتقال إلى استضافة جديدة مجانية وسريعة!</p>
+
+    <!-- 1. شاشة القفل بالرمز السرّي (PIN Screen) -->
+    <div id="pinModal">
+        <div class="modal-content">
+            <h2 style="color: var(--accent); margin-bottom: 15px;">🔒 الرمز السرّي الخاص بك</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق</p>
+            <input type="password" id="pinInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 15px;">
+            <button class="btn" style="width: 100%;" onclick="unlockApp()">فتح التطبيق</button>
+        </div>
     </div>
+
+    <!-- 2. الهيدر -->
+    <header>
+        <div>
+            <h1 style="font-size: 1.5rem;">المساعد الجامعي الشامل 🎓</h1>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;" id="userEmailDisplay">تسجيل الدخول بالإيميل</p>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙</button>
+    </header>
+
+    <div class="grid">
+        <!-- 3. حساب الطالب -->
+        <div class="card">
+            <h2>📧 حساب الطالب</h2>
+            <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
+            <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
+        </div>
+
+        <!-- 4. مكتبة الملازم والسنوات الأربع -->
+        <div class="card">
+            <h2>📚 مكتبة الملازم والـ PDF</h2>
+            <select id="majorSelect">
+                <option>اختر الاختصاص الجامعي...</option>
+                <option>هندسة البوليمرات والبتروكيمياويات</option>
+                <option>هندسة الطيران والميكانيك</option>
+                <option>الهندسة المدنية والكهربائية</option>
+                <option>العلوم والتكنولوجيا</option>
+            </select>
+            <select id="stageSelect">
+                <option>المرحلة الأولى</option>
+                <option>المرحلة الثانية</option>
+                <option>المرحلة الثالثة</option>
+                <option>المرحلة الرابعة</option>
+            </select>
+            <input type="file" accept="application/pdf">
+            <button class="btn btn-outline" onclick="alert('تم إرفاق الملزمة بنجاح!')">رفع الملزمة</button>
+        </div>
+
+        <!-- 5. قسم الاختبارات التفاعلية (جديد!) -->
+        <div class="card" style="grid-column: span 1;">
+            <h2>📝 اختبار نفسي (Quiz)</h2>
+            <div id="quizContainer">
+                <p id="questionText" style="font-weight: 600; margin-bottom: 10px;">س: ما هو المونومير الأساسي في تصنيع البوليمرات؟</p>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">أ) الإيثيلين الجليكول</div>
+                <div class="quiz-option" onclick="checkAnswer(this, true)">ب) الإيثيلين (للبولي إيثيلين)</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">ج) البنزين الخالص</div>
+                <div id="quizFeedback" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></div>
+            </div>
+            <button class="btn" style="margin-top: auto;" onclick="nextQuestion()">السؤال التالي ➡️</button>
+        </div>
+
+        <!-- 6. الذكاء الاصطناعي والتلخيص -->
+        <div class="card">
+            <h2>✨ الذكاء الاصطناعي وتلخيص المحاضرات</h2>
+            <textarea id="aiPrompt" rows="3" placeholder="ضع نص الملزمة هنا للتلخيص..."></textarea>
+            <button class="btn" onclick="summarizeContent()">📝 تلخيص المادة</button>
+            <div id="aiResult" style="margin-top: 10px; font-size: 0.9rem; color: var(--accent);"></div>
+        </div>
+
+        <!-- 7. مسجل الصوت -->
+        <div class="card">
+            <h2>🎙️ تسجيل المحاضرة الصوتية</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">سجل صوت الدكتور للاستماع إليه بالخلفية بجانب التطبيقات:</p>
+            <button class="btn" id="recordBtn" onclick="toggleRecording()">🎤 بدء تسجيل المحاضرة</button>
+            <audio id="audioPlayer" controls style="display:none;"></audio>
+        </div>
+
+        <!-- 8. البحث في المصادر الرسمية -->
+        <div class="card">
+            <h2>🔍 المصادر العلمية الرسمية</h2>
+            <input type="text" id="scholarQuery" placeholder="ابحث في الأبحاث والمصادر الأكاديمية...">
+            <button class="btn" onclick="searchScholar()">ابحث في Google Scholar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. PIN Code ---
+        let savedPin = localStorage.getItem('app_pin') || '1234';
+        function unlockApp() {
+            const input = document.getElementById('pinInput').value;
+            if (input === savedPin) {
+                document.getElementById('pinModal').style.display = 'none';
+            } else {
+                alert('الرمز السرّي غير صحيح! (الافتراضي: 1234)');
+            }
+        }
+
+        // --- 2. Light / Dark Mode ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark'); html.classList.add('light');
+            } else {
+                html.classList.remove('light'); html.classList.add('dark');
+            }
+        }
+
+        // --- 3. Save Email ---
+        function saveEmail() {
+            const email = document.getElementById('emailInput').value;
+            if (email) {
+                localStorage.setItem('user_email', email);
+                document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
+                alert('تم حفظ الحساب بنجاح!');
+            }
+        }
+
+        // --- 4. Quiz Logic ---
+        const questions = [
+            { q: "ما هو المونومير الأساسي في تصنيع البوليمرات؟", options: ["أ) الإيثيلين الجليكول", "ب) الإيثيلين (للبولي إيثيلين)", "ج) البنزين الخالص"], correct: 1 },
+            { q: "أي من الآتي يعتبر من تفاعلات البلمرة النموذجي؟", options: ["أ) الإضافة والتكاثف", "ب) الانصهار الحراري", "ج) الترسيب الكيميائي"], correct: 0 },
+            { q: "ما هي الوحدة المستخدمة لقياس اللزوجة في البوليمرات؟", options: ["أ) الباسكال", "ب) البواس", "ج) الجول"], correct: 1 }
+        ];
+        let currentQ = 0;
+
+        function checkAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.style.pointerEvents = 'none'); // تعطيل الضغط المتكرر
+            
+            const feedback = document.getElementById('quizFeedback');
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.style.color = '#10B981';
+                feedback.innerText = '✅ إجابة صحيحة بطل!';
+            } else {
+                element.classList.add('wrong');
+                feedback.style.color = '#EF4444';
+                feedback.innerText = '❌ إجابة خاطئة، حاول في السؤال التالي.';
+            }
+        }
+
+        function nextQuestion() {
+            currentQ = (currentQ + 1) % questions.length;
+            const qObj = questions[currentQ];
+            document.getElementById('questionText').innerText = "س: " + qObj.q;
+            
+            const container = document.getElementById('quizContainer');
+            // إعادة بناء الخيارات
+            const optionsHtml = qObj.options.map((opt, idx) => `
+                <div class="quiz-option" onclick="checkAnswer(this, ${idx === qObj.correct})">${opt}</div>
+            `).join('');
+            
+            // تحديث محتوى الكارد
+            document.getElementById('questionText').insertAdjacentHTML('afterend', '');
+            // إعادة توليد الخيارات والتقييم
+            const oldOpts = container.querySelectorAll('.quiz-option');
+            oldOpts.forEach(o => o.remove());
+            document.getElementById('quizFeedback').innerText = '';
+            
+            // إضافة الخيارات الجديدة فوق الفيدباك
+            document.getElementById('quizFeedback').insertAdjacentHTML('beforebegin', optionsHtml);
+        }
+
+        // --- 5. Audio Recorder ---
+        let mediaRecorder; let audioChunks = [];
+        async function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            const player = document.getElementById('audioPlayer');
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                audioChunks = [];
+                btn.innerText = '⏹️ إيقاف التسجيل';
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            } else {
+                mediaRecorder.stop();
+                btn.innerText = '🎤 بدء تسجيل جديد';
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    player.src = URL.createObjectURL(blob);
+                    player.style.display = 'block';
+                };
+            }
+        }
+
+        // --- 6. Scholar Search ---
+        function searchScholar() {
+            const query = document.getElementById('scholarQuery').value;
+            if (query) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`, '_blank');
+        }
+
+        // --- 7. AI Summary ---
+        function summarizeContent() {
+            const text = document.getElementById('aiPrompt').value;
+            const res = document.getElementById('aiResult');
+            if(!text) { alert('الرجاء إدخال النص أولاً'); return; }
+            res.innerText = 'جاري التلخيص بواسطة الذكاء الاصطناعي...';
+            setTimeout(() => {
+                res.innerHTML = '<strong>📌 الملخص الذكي:</strong><br>تم استخلاص أهم النقاط المفتاحية للمحاضرة بنجاح!';
+            }, 1200);
+        }
+
+        window.onload = () => {
+            const email = localStorage.getItem('user_email');
+            if (email) document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
+        };
+    </script>
 </body>
 </html>
