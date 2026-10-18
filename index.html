@@ -46,11 +46,11 @@
         }
         .theme-toggle { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
-        /* أزرار التبويبات بين الأقسام */
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        /* شريط التبويبات العلوي */
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab-btn {
             background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);
-            padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
         }
         .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
@@ -76,7 +76,7 @@
         .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
         .btn-danger { background: #EF4444; color: white; padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; }
 
-        /* شجرة المواد والمحاضرات */
+        /* تنسيقات المواد والمحاضرات */
         .subject-box {
             background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 10px;
         }
@@ -92,14 +92,12 @@
 
         audio { width: 100%; height: 35px; margin-top: 5px; }
 
-        /* الفلاش كارد (Flashcards) */
+        /* فلاش كارد واختبارات */
         .flashcard {
             background: var(--bg-primary); border: 2px dashed var(--accent); padding: 25px; border-radius: 14px;
             text-align: center; cursor: pointer; min-height: 120px; display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-top: 10px;
         }
-
-        /* خيارات اختبار نفسك */
         .quiz-option {
             background: var(--bg-primary); border: 1px solid var(--border); padding: 12px; border-radius: 8px;
             cursor: pointer; margin-top: 8px; text-align: right; font-weight: 500; color: var(--text-primary);
@@ -108,7 +106,7 @@
         .correct { background: #10B981 !important; color: white; border-color: #10B981; }
         .wrong { background: #EF4444 !important; color: white; border-color: #EF4444; }
 
-        /* بوت الشات الشبابي */
+        /* الشات الشبابي */
         .chat-box {
             background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 15px;
             height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
@@ -116,6 +114,13 @@
         .chat-msg { padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; line-height: 1.5; }
         .user-msg { background: #3B82F6; color: white; align-self: flex-start; }
         .bot-msg { background: var(--bg-card); color: var(--text-primary); align-self: flex-end; border: 1px solid var(--border); }
+
+        /* قائمة المهام وحاسبة المعدل */
+        .task-item, .gpa-item {
+            background: var(--bg-primary); border: 1px solid var(--border); padding: 12px; border-radius: 10px;
+            display: flex; justify-content: space-between; align-items: center; margin-top: 8px;
+        }
+        .task-done { text-decoration: line-through; color: var(--text-secondary); }
     </style>
 </head>
 <body>
@@ -130,162 +135,174 @@
         </div>
     </div>
 
-    <!-- 2. الهيدر وتبويبات التنقل وزر التموضع الليلي -->
+    <!-- 2. الهيدر وتبويبات التنقل -->
     <header>
         <div>
             <h1 style="font-size: 1.5rem;">المساعد الجامعي الشامل 🎓</h1>
-            <p style="color: var(--text-secondary); font-size: 0.85rem;" id="userEmailDisplay">أرشيف المواد، الامتحانات، والمساعد الذكي</p>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;" id="userEmailDisplay">نظام إدارة دراستك الكامل والأرشيف</p>
         </div>
         <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙</button>
     </header>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('tab-materials', this)">📂 المواد والمحاضرات</button>
-        <button class="tab-btn" onclick="switchTab('tab-exams', this)">📝 الامتحانات (Quiz & Flashcards)</button>
-        <button class="tab-btn" onclick="switchTab('tab-ai', this)">🤖 المساعد الذكي الشبابي</button>
-        <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ حساب الطالب والمصادر</button>
+        <button class="tab-btn active" onclick="switchTab('tab-materials', this)">📂 المواد</button>
+        <button class="tab-btn" onclick="switchTab('tab-exams', this)">📝 الامتحانات</button>
+        <button class="tab-btn" onclick="switchTab('tab-ai', this)">🤖 المساعد الذكي</button>
+        <button class="tab-btn" onclick="switchTab('tab-todos', this)">✅ المهام والواجبات</button>
+        <button class="tab-btn" onclick="switchTab('tab-gpa', this)">📊 حاسبة GPA</button>
+        <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ حساب الطالب</button>
     </div>
 
-    <!-- ================= القسم الأول: المواد والمحاضرات ================= -->
+    <!-- ================= 1. المواد والمحاضرات ================= -->
     <div id="tab-materials" class="app-section active">
         <div class="card">
             <h2>➕ إضافة مادة دراسية جديدة</h2>
-            <input type="text" id="newSubjectName" placeholder="مثال: هندسة البوليمرات، ميكانيكا الموائع...">
+            <input type="text" id="newSubjectName" placeholder="مثال: هندسة البوليمرات...">
             <button class="btn" onclick="addSubject()">إنشاء مجلد المادة</button>
         </div>
-
         <div class="card">
             <h2>🎙️ إضافة محاضرة وتسجيل لمادة</h2>
             <select id="subjectSelect"><option value="">اختر المادة...</option></select>
-            <input type="text" id="lectureTitleInput" placeholder="عنوان المحاضرة (مثال: المحاضرة الأولى)">
-            
+            <input type="text" id="lectureTitleInput" placeholder="عنوان المحاضرة (مثال: المحاضرة 1)">
             <label style="font-size: 0.85rem; color: var(--text-secondary);">ملف الملزمة (PDF):</label>
             <input type="file" id="lecturePdfInput" accept="application/pdf">
-
             <label style="font-size: 0.85rem; color: var(--text-secondary);">تسجيل صوت الدكتور:</label>
             <button class="btn btn-outline" id="recBtn" onclick="toggleRecord()">🎤 بدء التسجيل</button>
             <input type="file" id="lectureAudioFile" accept="audio/*">
-
             <button class="btn" onclick="saveLecture()">حفظ المحاضرة في المادة</button>
         </div>
-
         <div class="card" style="grid-column: 1 / -1;">
             <h2>📚 أرشيف المواد والمحاضرات</h2>
             <div id="subjectsContainer"><p style="color: var(--text-secondary);">لا توجد مواد مضافة بعد.</p></div>
         </div>
     </div>
 
-    <!-- ================= القسم الثاني: الامتحانات (Quiz & Flashcards) ================= -->
+    <!-- ================= 2. الامتحانات (Quiz & Flashcards) ================= -->
     <div id="tab-exams" class="app-section">
         <div class="card">
-            <h2>📝 اختبار نفسك بالذكاء الاصطناعي (Quiz)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">اكتب اسم الموضوع أو المادة ليتم توليد امتحان اختباري لك:</p>
-            <input type="text" id="quizTopic" placeholder="مثال: هندسة البوليمرات، خواص المواد...">
+            <h2>📝 اختبار نفسك (Quiz)</h2>
+            <input type="text" id="quizTopic" placeholder="اكتب موضوع المادة...">
             <button class="btn" onclick="generateQuiz()">✨ توليد أسئلة الامتحان</button>
-            
             <div id="quizArea" style="margin-top: 15px; display: none;">
                 <p id="qText" style="font-weight: 600; margin-bottom: 10px;"></p>
                 <div id="qOptions"></div>
                 <p id="qFeedback" style="margin-top: 10px; font-weight: bold;"></p>
             </div>
         </div>
-
         <div class="card">
-            <h2>⚡ فلاش كارد (Flashcards للمراجعة السريعة)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">بطاقات ذكية للمعلومات (اضغط على البطاقة لقلبها ومعرفة الإجابة):</p>
-            <input type="text" id="flashTopic" placeholder="اكتب المادة للمراجعة (مثال: مقاومة مواد)...">
+            <h2>⚡ فلاش كارد (Flashcards)</h2>
+            <input type="text" id="flashTopic" placeholder="اكتب المادة للمراجعة...">
             <button class="btn btn-outline" onclick="generateFlashcard()">🔄 توليد بطاقات جديدة</button>
-            
             <div class="flashcard" id="flashcardBox" onclick="flipCard()">
                 <span id="flashText">اضغط على زر التوليد لبدء البطاقات التعليمية 💡</span>
             </div>
         </div>
     </div>
 
-    <!-- ================= القسم الثالث: المساعد الذكي الشبابي ================= -->
+    <!-- ================= 3. المساعد الذكي الشبابي ================= -->
     <div id="tab-ai" class="app-section">
         <div class="card" style="grid-column: 1 / -1;">
-            <h2>🤖 المساعد الذكي (يشرح لك بأسلوب شبابي وبسيط)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">اسأل عن أي تعقيد بالمادة، وسيبسطها لك كأنك تسأل صديقك الفاهم:</p>
-            
+            <h2>🤖 المساعد الذكي (يشرح لك بأسلوب شبابي)</h2>
             <div class="chat-box" id="chatContainer">
-                <div class="chat-msg bot-msg">هلا بيك يا بطل! ✌️ أنا صديقك ومساعدك الذكي، سألني عن أي قانون أو مادة صعبة، وراح أبسطها لك بأبسط كلام وبدون تعقيد!</div>
+                <div class="chat-msg bot-msg">هلا بيك يا بطل! ✌️ سألني عن أي مادة صعبة، وراح أبسطها لك بدون تعقيد!</div>
             </div>
-
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <input type="text" id="userChatInput" placeholder="اكتب سؤالك هنا (مثال: شنو يعني لزوجة؟)..." onkeypress="if(event.key === 'Enter') sendToAi()">
+                <input type="text" id="userChatInput" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key === 'Enter') sendToAi()">
                 <button class="btn" onclick="sendToAi()">إرسال 🚀</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= القسم الرابع: حساب الطالب والمصادر العلمية ================= -->
+    <!-- ================= 4. المهام والواجبات (To-Do List) ================= -->
+    <div id="tab-todos" class="app-section">
+        <div class="card">
+            <h2>✅ إضافة مهمة أو واجب دراسي</h2>
+            <input type="text" id="taskTitle" placeholder="عنوان المهمة (مثال: تسليم تقرير البوليمرات)...">
+            <label style="font-size: 0.85rem; color: var(--text-secondary);">تاريخ الاستحقاق (Deadline):</label>
+            <input type="date" id="taskDate">
+            <button class="btn" onclick="addTask()">إضافة إلى قائمة المهام</button>
+        </div>
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>📋 أرشيف المهام والواجبات المحفوظة</h2>
+            <div id="tasksContainer"><p style="color: var(--text-secondary);">لا توجد مهام مضافة حالياً في الأرشيف.</p></div>
+        </div>
+    </div>
+
+    <!-- ================= 5. حاسبة المعدل (GPA Calculator) ================= -->
+    <div id="tab-gpa" class="app-section">
+        <div class="card">
+            <h2>📊 حاسبة المعدل التراكمي (GPA)</h2>
+            <input type="text" id="gpaSubjectName" placeholder="اسم المادة (مثال: رياضيات متقدمة)...">
+            <input type="number" id="gpaCredits" placeholder="عدد الوحدات (الـ Units أو ساعات المادة)..." min="1" max="6">
+            <select id="gpaGrade">
+                <option value="5">امتياز (A - 90-100)</option>
+                <option value="4">جيد جداً (B - 80-89)</option>
+                <option value="3">جيد (C - 70-79)</option>
+                <option value="2">متوسط (D - 60-69)</option>
+                <option value="1">مقبول (E - 50-59)</option>
+                <option value="0">راسب (F - أقل من 50)</option>
+            </select>
+            <button class="btn" onclick="addGpaItem()">إضافة المادة للحاسبة</button>
+        </div>
+        <div class="card">
+            <h2>📈 أرشيف المواد والمعدل الفصلي</h2>
+            <div id="gpaListContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <div style="background: var(--bg-primary); padding: 15px; border-radius: 10px; margin-top: 10px; text-align: center; border: 1px solid var(--border);">
+                <h3 style="color: var(--accent);">المعدل الفصلي الحالي: <span id="gpaResultText">0.00</span> / 5.00</h3>
+            </div>
+            <button class="btn btn-danger" style="margin-top: 10px;" onclick="clearGpaList()">إعادة ضبط الحاسبة</button>
+        </div>
+    </div>
+
+    <!-- ================= 6. حساب الطالب والمصادر ================= -->
     <div id="tab-settings" class="app-section">
         <div class="card">
             <h2>📧 حساب الطالب والأمان</h2>
-            <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
+            <input type="email" id="emailInput" placeholder="بريدك الجامعي...">
             <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
-            
             <hr style="border: 0; border-top: 1px solid var(--border); margin: 5px 0;">
-            
-            <p style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تغيير رمز الـ PIN (4 أرقام):</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تغيير رمز الـ PIN:</p>
             <input type="password" id="oldPin" maxlength="4" placeholder="الرمز القديم...">
             <input type="password" id="newPin" maxlength="4" placeholder="الرمز الجديد...">
-            <button class="btn btn-outline" onclick="changePin()">تحديث الرمز السري</button>
+            <button class="btn btn-outline" onclick="changePin()">تحديث الرمز</button>
         </div>
-
         <div class="card">
-            <h2>🔍 البحث في المصادر العلمية (Google Scholar)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">ابحث مباشرة في الأبحاث والمراجع الأكاديمية المعتمدة:</p>
-            <input type="text" id="scholarQuery" placeholder="اكتب عنوان البحث أو المادة العلمية...">
+            <h2>🔍 المصادر العلمية (Google Scholar)</h2>
+            <input type="text" id="scholarQuery" placeholder="ابحث في الأبحاث الأكاديمية...">
             <button class="btn" onclick="searchScholar()">بحث في Google Scholar</button>
         </div>
     </div>
 
     <script>
-        // --- 1. النظام الأمني (PIN & Email) ---
+        // --- 1. النظام الأمني ---
         let savedPin = localStorage.getItem('app_pin') || '1234';
         function unlockApp() {
             const input = document.getElementById('pinInput').value;
-            if (input === savedPin) {
-                document.getElementById('pinModal').style.display = 'none';
-            } else {
-                alert('الرمز السرّي غير صحيح!');
-            }
+            if (input === savedPin) { document.getElementById('pinModal').style.display = 'none'; }
+            else { alert('الرمز السرّي غير صحيح!'); }
         }
-
         function changePin() {
             const oldP = document.getElementById('oldPin').value;
             const newP = document.getElementById('newPin').value;
             if (oldP !== savedPin) { alert('الرمز السري القديم غير صحيح!'); return; }
-            if (!newP || newP.length !== 4) { alert('يرجى إدخال رمز جديد من 4 أرقام!'); return; }
-            localStorage.setItem('app_pin', newP);
-            savedPin = newP;
-            document.getElementById('oldPin').value = '';
-            document.getElementById('newPin').value = '';
-            alert('تم تغيير الرمز السري بنجاح!');
+            if (!newP || newP.length !== 4) { alert('أدخل رمز جديد من 4 أرقام!'); return; }
+            localStorage.setItem('app_pin', newP); savedPin = newP;
+            document.getElementById('oldPin').value = ''; document.getElementById('newPin').value = '';
+            alert('تم تغيير الرمز بنجاح!');
         }
-
         function saveEmail() {
             const email = document.getElementById('emailInput').value;
-            if (email) {
-                localStorage.setItem('user_email', email);
-                document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-                alert('تم حفظ الحساب بنجاح!');
-            }
+            if (email) { localStorage.setItem('user_email', email); document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email; alert('تم الحفظ!'); }
         }
 
-        // --- 2. الوضع الليلي والنهاري (Dark/Light Mode) ---
+        // --- 2. التموضع الليلي/النهاري ---
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark'); html.classList.add('light');
-            } else {
-                html.classList.remove('light'); html.classList.add('dark');
-            }
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); html.classList.add('light'); }
+            else { html.classList.remove('light'); html.classList.add('dark'); }
         }
 
-        // --- 3. التبويبات ---
+        // --- 3. التنقل بين التبويبات ---
         function switchTab(tabId, btn) {
             document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -293,112 +310,67 @@
             btn.classList.add('active');
         }
 
-        // --- 4. إدارة المواد والمحاضرات (LocalStorage) ---
+        // --- 4. المواد والمحاضرات (مع الأرشيف والحفظ) ---
         let db = JSON.parse(localStorage.getItem('academic_db')) || [];
-
-        function saveDb() {
-            localStorage.setItem('academic_db', JSON.stringify(db));
-            renderSubjects();
-        }
-
+        function saveDb() { localStorage.setItem('academic_db', JSON.stringify(db)); renderSubjects(); }
         function addSubject() {
             const name = document.getElementById('newSubjectName').value.trim();
-            if (!name) { alert('يرجى كتابة اسم المادة'); return; }
+            if (!name) { alert('أدخل اسم المادة'); return; }
             db.push({ id: Date.now(), name: name, lectures: [] });
-            document.getElementById('newSubjectName').value = '';
-            saveDb();
+            document.getElementById('newSubjectName').value = ''; saveDb();
         }
-
-        function deleteSubject(subId) {
-            if(confirm('متأكد من حذف المادة بالكامل؟')) {
-                db = db.filter(s => s.id !== subId);
-                saveDb();
-            }
-        }
-
+        function deleteSubject(subId) { if(confirm('متأكد من الحذف؟')) { db = db.filter(s => s.id !== subId); saveDb(); } }
         function deleteLecture(subId, lecId) {
             const sub = db.find(s => s.id === subId);
-            if (sub) {
-                sub.lectures = sub.lectures.filter(l => l.id !== lecId);
-                saveDb();
-            }
+            if (sub) { sub.lectures = sub.lectures.filter(l => l.id !== lecId); saveDb(); }
         }
 
-        // --- 5. تسجيل الصوت ---
+        // التسجيل الصوتي
         let mediaRecorder; let audioChunks = []; let currentAudioBase64 = '';
         async function toggleRecord() {
             const btn = document.getElementById('recBtn');
             if (!mediaRecorder || mediaRecorder.state === 'inactive') {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
-                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream); mediaRecorder.start(); audioChunks = [];
                 btn.innerText = '⏹️ إيقاف التسجيل';
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
             } else {
-                mediaRecorder.stop();
-                btn.innerText = '🎤 تسجيل مجدداً';
+                mediaRecorder.stop(); btn.innerText = '🎤 تسجيل مجدداً';
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => { currentAudioBase64 = reader.result; alert('تم تسجيل الصوت بنجاح!'); };
+                    const reader = new FileReader(); reader.readAsDataURL(blob);
+                    reader.onloadend = () => { currentAudioBase64 = reader.result; alert('تم تسجيل الصوت!'); };
                 };
             }
         }
-
         function saveLecture() {
             const subId = Number(document.getElementById('subjectSelect').value);
             const title = document.getElementById('lectureTitleInput').value.trim();
             const pdfFile = document.getElementById('lecturePdfInput').files[0];
-            const audioFileInput = document.getElementById('lectureAudioFile').files[0];
-
-            if (!subId || !title) { alert('اختر المادة وعنوان المحاضرة أولاً'); return; }
+            if (!subId || !title) { alert('اختر المادة وعنوان المحاضرة'); return; }
             const subject = db.find(s => s.id === subId);
             if (!subject) return;
-
             const newLec = { id: Date.now(), title: title, pdfName: pdfFile ? pdfFile.name : null, audioData: currentAudioBase64 };
-
-            if (audioFileInput && !currentAudioBase64) {
-                const reader = new FileReader();
-                reader.readAsDataURL(audioFileInput);
-                reader.onloadend = () => {
-                    newLec.audioData = reader.result;
-                    subject.lectures.push(newLec);
-                    resetForm(); saveDb();
-                };
-            } else {
-                subject.lectures.push(newLec);
-                resetForm(); saveDb();
-            }
+            subject.lectures.push(newLec);
+            document.getElementById('lectureTitleInput').value = ''; document.getElementById('lecturePdfInput').value = ''; currentAudioBase64 = '';
+            saveDb();
         }
-
-        function resetForm() {
-            document.getElementById('lectureTitleInput').value = '';
-            document.getElementById('lecturePdfInput').value = '';
-            document.getElementById('lectureAudioFile').value = '';
-            currentAudioBase64 = '';
-        }
-
         function renderSubjects() {
             const container = document.getElementById('subjectsContainer');
             const select = document.getElementById('subjectSelect');
             select.innerHTML = '<option value="">اختر المادة...</option>';
-            if (db.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">لا توجد مواد مضافة بعد.</p>';
-                return;
-            }
+            if (db.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary);">لا توجد مواد مضافة.</p>'; return; }
             container.innerHTML = '';
             db.forEach(sub => {
                 select.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
-                let lecsHtml = sub.lectures.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.85rem;">لا توجد محاضرات مضافة بعد.</p>' : '';
+                let lecsHtml = sub.lectures.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.85rem;">لا محاضرات مضافة.</p>' : '';
                 sub.lectures.forEach(lec => {
                     lecsHtml += `
                         <div class="lecture-item">
                             <div class="lecture-title">📌 ${lec.title}</div>
                             <div class="lecture-actions">
                                 ${lec.pdfName ? `<span style="font-size: 0.8rem; color: var(--accent);">📄 ${lec.pdfName}</span>` : ''}
-                                <button class="btn-danger" onclick="deleteLecture(${sub.id}, ${lec.id})">حذف المحاضرة</button>
+                                <button class="btn-danger" onclick="deleteLecture(${sub.id}, ${lec.id})">حذف</button>
                             </div>
                             ${lec.audioData ? `<audio controls src="${lec.audioData}"></audio>` : ''}
                         </div>
@@ -406,113 +378,128 @@
                 });
                 container.innerHTML += `
                     <div class="subject-box">
-                        <div class="subject-header">
-                            <span>📂 ${sub.name} (${sub.lectures.length} محاضرات)</span>
-                            <button class="btn-danger" onclick="deleteSubject(${sub.id})">حذف المادة</button>
-                        </div>
+                        <div class="subject-header"><span>📂 ${sub.name} (${sub.lectures.length})</span><button class="btn-danger" onclick="deleteSubject(${sub.id})">حذف المادة</button></div>
                         ${lecsHtml}
                     </div>
                 `;
             });
         }
 
-        // --- 6. نظام الامتحانات والـ Quiz ---
+        // --- 5. الامتحانات والذكاء الاصطناعي ---
         function generateQuiz() {
             const topic = document.getElementById('quizTopic').value;
-            if(!topic) { alert('اكتب اسم الموضوع أولاً!'); return; }
-            
-            const area = document.getElementById('quizArea');
-            const qText = document.getElementById('qText');
-            const qOpts = document.getElementById('qOptions');
-            const qFeed = document.getElementById('qFeedback');
-            
-            area.style.display = 'block';
-            qText.innerText = `جاري توليد سؤال ذكي حول مادة (${topic})...`;
-            qOpts.innerHTML = ''; qFeed.innerText = '';
-
-            setTimeout(() => {
-                qText.innerText = `س: ما هي الفكرة الأساسية أو التطبيق العملي لـ "${topic}"؟`;
-                const options = [
-                    { text: "أ) تحسين كفاءة العمليات ورفع مستوى الأداء", correct: true },
-                    { text: "ب) إيقاف الخواص الفيزيائية والكيميائية بالكامل", correct: false },
-                    { text: "ج) مضاعفة استهلاك الطاقة بدون مخرج مفيد", correct: false }
-                ];
-                qOpts.innerHTML = options.map(opt => `
-                    <div class="quiz-option" onclick="checkQuiz(this, ${opt.correct})">${opt.text}</div>
-                `).join('');
-            }, 1000);
+            if(!topic) { alert('اكتب الموضوع أولاً!'); return; }
+            document.getElementById('quizArea').style.display = 'block';
+            document.getElementById('qText').innerText = `س: ما هي الفكرة الأساسية لـ "${topic}"؟`;
+            document.getElementById('qOptions').innerHTML = `
+                <div class="quiz-option" onclick="this.classList.add('correct')">أ) تحسين الكفاءة ورفع الأداء</div>
+                <div class="quiz-option" onclick="this.classList.add('wrong')">ب) تعطيل العمليات بالكامل</div>
+            `;
         }
-
-        function checkQuiz(el, isCorrect) {
-            document.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
-            const feed = document.getElementById('qFeedback');
-            if(isCorrect) {
-                el.classList.add('correct');
-                feed.style.color = '#10B981';
-                feed.innerText = '✅ إجابة صحيحة، عاش ايدك يا بطل!';
-            } else {
-                el.classList.add('wrong');
-                feed.style.color = '#EF4444';
-                feed.innerText = '❌ إجابة خاطئة، الخيار الأول هو الصحيح.';
-            }
-        }
-
-        // --- 7. الفلاش كارد (Flashcards) ---
-        let flashCardsList = [
-            { q: "ما هو التعريف البسيط للبوليمرات؟", a: "جزيئات عملاقة مترابطة تتكون من تكرار وحدات أصغر تسمى المونومرات." },
-            { q: "أهمية دراسة ميكانيكا الموائع؟", a: "فهم سلوك السوائل والغازات في حالة السكون أو الحركة." }
-        ];
+        let flashCardsList = [{ q: "ما هي البوليمرات؟", a: "جزيئات ضخمة تتكون من تكرار جزيئات أصغر." }];
         let currentCardIdx = 0; let isFlipped = false;
-
         function generateFlashcard() {
-            const topic = document.getElementById('flashTopic').value;
-            if(topic) {
-                flashCardsList.push({ q: `سؤال مخصص لـ "${topic}":`, a: `هذا الموضوع يرتكز على تطبيق المبادئ الأساسية بكفاءة.` });
-            }
             currentCardIdx = (currentCardIdx + 1) % flashCardsList.length;
             isFlipped = false;
             document.getElementById('flashText').innerText = flashCardsList[currentCardIdx].q;
         }
-
         function flipCard() {
             isFlipped = !isFlipped;
-            const card = flashCardsList[currentCardIdx];
-            document.getElementById('flashText').innerText = isFlipped ? card.a : card.q;
+            document.getElementById('flashText').innerText = isFlipped ? flashCardsList[currentCardIdx].a : flashCardsList[currentCardIdx].q;
         }
-
-        // --- 8. المساعد الذكي الشبابي ---
         function sendToAi() {
             const input = document.getElementById('userChatInput');
-            const text = input.value.trim();
-            if(!text) return;
-
+            const text = input.value.trim(); if(!text) return;
             const container = document.getElementById('chatContainer');
             container.innerHTML += `<div class="chat-msg user-msg">${text}</div>`;
             input.value = '';
-
             setTimeout(() => {
-                let reply = "ولا تشيل همها! باختصار شديد: الفكرة تتمثل بإننا ندرس الأساسيات ونربطها بالتطبيق العملي حتى تصير السالفة واضحة وسهلة بالحفظ.";
-                if(text.includes('لزوجة')) reply = "اللزوجة باختصار هي 'ثخن السائل'! يعني مثلاً الماي جاري وخفيف (لزوجته قليلة)، بس العسل ثخين وبطيء بالحركة (لزوجته عالية). وصلتك الفكرة؟ 😎";
-                if(text.includes('سلام') || text.includes('هلا')) reply = "هلا بيك يا غالي! شعدنا اليوم؟ شنو المادة الصعبة حتى نبسطها سويّة؟";
-
-                container.innerHTML += `<div class="chat-msg bot-msg">${reply}</div>`;
+                container.innerHTML += `<div class="chat-msg bot-msg">صج موضوع حلو! باختصار يتركز على فهم التطبيق العملي والمبادئ الأساسية ببساطة ✌️</div>`;
                 container.scrollTop = container.scrollHeight;
-            }, 800);
+            }, 600);
         }
 
-        // --- 9. البحث العلمي Google Scholar ---
+        // --- 6. قائمة المهام (To-Do List) مع الأرشيف والحفظ ---
+        let tasksDb = JSON.parse(localStorage.getItem('tasks_db')) || [];
+        function saveTasksDb() { localStorage.setItem('tasks_db', JSON.stringify(tasksDb)); renderTasks(); }
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const date = document.getElementById('taskDate').value;
+            if(!title) { alert('أدخل عنوان المهمة'); return; }
+            tasksDb.push({ id: Date.now(), title, date, done: false });
+            document.getElementById('taskTitle').value = ''; document.getElementById('taskDate').value = '';
+            saveTasksDb();
+        }
+        function toggleTask(id) {
+            const t = tasksDb.find(x => x.id === id);
+            if(t) { t.done = !t.done; saveTasksDb(); }
+        }
+        function deleteTask(id) { tasksDb = tasksDb.filter(x => x.id !== id); saveTasksDb(); }
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            if(tasksDb.length === 0) { container.innerHTML = '<p style="color: var(--text-secondary);">لا توجد مهام مضافة في الأرشيف.</p>'; return; }
+            container.innerHTML = tasksDb.map(t => `
+                <div class="task-item">
+                    <div>
+                        <span class="${t.done ? 'task-done' : ''}" style="font-weight: 600;">${t.title}</span>
+                        ${t.date ? `<br><small style="color: var(--text-secondary);">📅 الاستحقاق: ${t.date}</small>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;" onclick="toggleTask(${t.id})">${t.done ? 'إلغاء' : 'إنجاز'}</button>
+                        <button class="btn-danger" onclick="deleteTask(${t.id})">حذف</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 7. حاسبة المعدل التراكمي (GPA Calculator) مع الأرشيف ---
+        let gpaDb = JSON.parse(localStorage.getItem('gpa_db')) || [];
+        function saveGpaDb() { localStorage.setItem('gpa_db', JSON.stringify(gpaDb)); renderGpa(); }
+        function addGpaItem() {
+            const name = document.getElementById('gpaSubjectName').value.trim();
+            const credits = Number(document.getElementById('gpaCredits').value);
+            const grade = Number(document.getElementById('gpaGrade').value);
+            if(!name || !credits) { alert('أدخل اسم المادة وحدات المادة بشكل صحيح'); return; }
+            gpaDb.push({ id: Date.now(), name, credits, grade });
+            document.getElementById('gpaSubjectName').value = ''; document.getElementById('gpaCredits').value = '';
+            saveGpaDb();
+        }
+        function deleteGpaItem(id) { gpaDb = gpaDb.filter(x => x.id !== id); saveGpaDb(); }
+        function clearGpaList() { if(confirm('إعادة ضبط الحاسبة؟')) { gpaDb = []; saveGpaDb(); } }
+        function renderGpa() {
+            const container = document.getElementById('gpaListContainer');
+            if(gpaDb.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">لا توجد مواد مضافة في أرشيف الحاسبة.</p>';
+                document.getElementById('gpaResultText').innerText = '0.00';
+                return;
+            }
+            let totalPoints = 0; let totalCredits = 0;
+            container.innerHTML = gpaDb.map(item => {
+                totalPoints += (item.grade * item.credits);
+                totalCredits += item.credits;
+                return `
+                    <div class="gpa-item">
+                        <span>📚 ${item.name} (وحدات: ${item.credits}, تقدير: ${item.grade})</span>
+                        <button class="btn-danger" onclick="deleteGpaItem(${item.id})">حذف</button>
+                    </div>
+                `;
+            }).join('');
+            const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+            document.getElementById('gpaResultText').innerText = gpa;
+        }
+
+        // --- 8. البحث العلمي ---
         function searchScholar() {
-            const query = document.getElementById('scholarQuery').value;
-            if (query) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`, '_blank');
+            const q = document.getElementById('scholarQuery').value;
+            if(q) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(q)}`, '_blank');
         }
 
         window.onload = () => {
             renderSubjects();
+            renderTasks();
+            renderGpa();
             const email = localStorage.getItem('user_email');
-            if (email) {
-                document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-                document.getElementById('emailInput').value = email;
-            }
+            if(email) { document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email; document.getElementById('emailInput').value = email; }
         };
     </script>
 </body>
