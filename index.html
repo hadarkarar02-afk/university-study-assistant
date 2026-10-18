@@ -1,23 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="light">
+<html lang="ar" dir="rtl" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق المساعد الجامعي الشامل 🎓</title>
+    <title>المساعد الجامعي الشامل 🎓</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-primary: #0F172A;
-            --text-secondary: #64748B;
-            --accent: #7C3AED;
-            --accent-hover: #6D28D9;
-            --border: #E2E8F0;
-            --shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.1);
-        }
-
-        html.dark {
             --bg-primary: #0F172A;
             --bg-card: #1E293B;
             --text-primary: #F8FAFC;
@@ -28,12 +17,12 @@
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; transition: background 0.3s, color 0.3s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; transition: 0.2s; }
         body { background: var(--bg-primary); color: var(--text-primary); padding: 20px; min-height: 100vh; }
         
         #pinModal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(15, 23, 42, 0.95); display: flex; justify-content: center; align-items: center; z-index: 2000;
         }
         .modal-content {
             background: var(--bg-card); padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 400px;
@@ -42,11 +31,20 @@
 
         header {
             display: flex; justify-content: space-between; align-items: center; padding: 20px;
-            background: var(--bg-card); border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border); box-shadow: var(--shadow);
+            background: var(--bg-card); border-radius: 16px; margin-bottom: 25px; border: 1px solid var(--border);
         }
-        .theme-toggle { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        /* نظام التبويبات بين الأقسام الرئيسية */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);
+            padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
+        }
+        .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .app-section { display: none; }
+        .app-section.active { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
         .card {
             background: var(--bg-card); padding: 24px; border-radius: 16px; border: 1px solid var(--border);
             box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px;
@@ -64,242 +62,204 @@
         }
         .btn:hover { background: var(--accent-hover); }
         .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
-        audio { width: 100%; margin-top: 10px; border-radius: 8px; }
+        .btn-danger { background: #EF4444; color: white; padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; }
 
+        /* شجرة المواد والمحاضرات */
+        .subject-box {
+            background: #0F172A; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 10px;
+        }
+        .subject-header {
+            display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; color: #A78BFA;
+        }
+        .lecture-item {
+            background: #1E293B; border-right: 4px solid var(--accent); padding: 12px; margin-top: 10px; border-radius: 8px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .lecture-title { font-weight: 600; font-size: 0.95rem; color: #F8FAFC; }
+        .lecture-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        audio { width: 100%; height: 35px; margin-top: 5px; }
+
+        /* الفلاش كارد (Flashcards) */
+        .flashcard {
+            background: #0F172A; border: 2px dashed var(--accent); padding: 25px; border-radius: 14px;
+            text-align: center; cursor: pointer; min-height: 120px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 600; color: #E2E8F0; margin-top: 10px;
+        }
+
+        /* خيارات اختبار نفسك */
         .quiz-option {
-            background: var(--bg-primary); border: 1px solid var(--border); padding: 10px; border-radius: 8px;
-            cursor: pointer; margin-top: 6px; text-align: right;
+            background: #0F172A; border: 1px solid var(--border); padding: 12px; border-radius: 8px;
+            cursor: pointer; margin-top: 8px; text-align: right; font-weight: 500;
         }
         .quiz-option:hover { border-color: var(--accent); }
         .correct { background: #10B981 !important; color: white; border-color: #10B981; }
         .wrong { background: #EF4444 !important; color: white; border-color: #EF4444; }
+
+        /* بوت الشات الشبابي */
+        .chat-box {
+            background: #0F172A; border: 1px solid var(--border); border-radius: 12px; padding: 15px;
+            height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
+        }
+        .chat-msg { padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; line-height: 1.5; }
+        .user-msg { background: #3B82F6; color: white; align-self: flex-start; }
+        .bot-msg { background: #334155; color: #F8FAFC; align-self: flex-end; }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة القفل بالرمز السرّي -->
+    <!-- 1. شاشة القفل بالرمز السري -->
     <div id="pinModal">
         <div class="modal-content">
             <h2 style="color: var(--accent); margin-bottom: 15px;">🔒 الرمز السرّي الخاص بك</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق (الافتراضي: 1234)</p>
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام (الافتراضي: 1234)</p>
             <input type="password" id="pinInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 15px;">
             <button class="btn" style="width: 100%;" onclick="unlockApp()">فتح التطبيق</button>
         </div>
     </div>
 
-    <!-- 2. الهيدر -->
+    <!-- 2. الهيدر وتبويبات التنقل -->
     <header>
         <div>
             <h1 style="font-size: 1.5rem;">المساعد الجامعي الشامل 🎓</h1>
-            <p style="color: var(--text-secondary); font-size: 0.85rem;" id="userEmailDisplay">تسجيل الدخول بالإيميل</p>
+            <p style="color: var(--text-secondary); font-size: 0.85rem;">موادك، محاضراتك، امتحاناتك، ومساعدك الذكي بمكان واحد</p>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙</button>
     </header>
 
-    <div class="grid">
-        <!-- 3. حساب الطالب وإدارة الرمز السري -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-materials', this)">📂 المواد والمحاضرات</button>
+        <button class="tab-btn" onclick="switchTab('tab-exams', this)">📝 الامتحانات (Quiz & Flashcards)</button>
+        <button class="tab-btn" onclick="switchTab('tab-ai', this)">🤖 المساعد الذكي الشبابي</button>
+    </div>
+
+    <!-- ================= القائمه الأولى: المواد والمحاضرات ================= -->
+    <div id="tab-materials" class="app-section active">
         <div class="card">
-            <h2>📧 حساب الطالب والأمان</h2>
-            <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
-            <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
-            
-            <hr style="border: 0; border-top: 1px solid var(--border); margin: 5px 0;">
-            
-            <p style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تغيير رمز الـ PIN (4 أرقام):</p>
-            <input type="password" id="oldPin" maxlength="4" placeholder="الرمز القديم...">
-            <input type="password" id="newPin" maxlength="4" placeholder="الرمز الجديد...">
-            <button class="btn btn-outline" onclick="changePin()">تحديث الرمز السري</button>
+            <h2>➕ إضافة مادة دراسية جديدة</h2>
+            <input type="text" id="newSubjectName" placeholder="مثال: ميكانيكا الموائع، بوليمرات...">
+            <button class="btn" onclick="addSubject()">إنشاء مجلد المادة</button>
         </div>
 
-        <!-- 4. مكتبة الملازم واختيار الأقسام العراقية الشاملة -->
         <div class="card">
-            <h2>📚 مكتبة الملازم والـ PDF</h2>
-            <select id="majorSelect">
-                <option value="">اختر الاختصاص أو الكلية...</option>
-                <optgroup label="الهندسة والتكنولوجيا">
-                    <option>هندسة البوليمرات والصناعات البتروكيمياوية</option>
-                    <option>هندسة الطيران والميكانيك</option>
-                    <option>الهندسة المدنية</option>
-                    <option>هندسة العمارة</option>
-                    <option>الهندسة الكهربائية والإلكترونية</option>
-                    <option>هندسة الحاسوب والاتصالات</option>
-                    <option>هندسة النفط والغاز</option>
-                    <option>هندسة الكيمياوية</option>
-                </optgroup>
-                <optgroup label="المجموعة الطبية والصحية">
-                    <option>الطب البشري</option>
-                    <option>طب الأسنان</option>
-                    <option>الصيدلة</option>
-                    <option>التقنيات الصحية والطبية</option>
-                    <option>التمريض</option>
-                </optgroup>
-                <optgroup label="العلوم الصرفة والتطبيقية">
-                    <option>علوم الحاسوب وتكنولوجيا المعلومات</option>
-                    <option>علوم الرياضيات والكمبيوتر</option>
-                    <option>علوم الفيزياء والتقنيات</option>
-                    <option>علوم الكيمياء التطبيقية</option>
-                    <option>علوم الحياة (البيولوجي)</option>
-                </optgroup>
-                <optgroup label="القانون والإدارة والعلوم الإنسانية">
-                    <option>القانون وحقوق الإنسان</option>
-                    <option>إدارة الأعمال واقتصاديات</option>
-                    <option>اللغة الإنجليزية وآدابها</option>
-                    <option>التربية والتعليم</option>
-                </optgroup>
-            </select>
-            <select id="stageSelect">
-                <option>المرحلة الأولى</option>
-                <option>المرحلة الثانية</option>
-                <option>المرحلة الثالثة</option>
-                <option>المرحلة الرابعة</option>
-            </select>
-            <input type="file" accept="application/pdf">
-            <button class="btn btn-outline" onclick="alert('تم إرفاق الملزمة بنجاح!')">رفع الملزمة</button>
+            <h2>🎙️ إضافة محاضرة وتسجيل لمادة</h2>
+            <select id="subjectSelect"><option value="">اختر المادة...</option></select>
+            <input type="text" id="lectureTitleInput" placeholder="عنوان المحاضرة (مثال: المحاضرة الأولى)">
+            
+            <label style="font-size: 0.85rem; color: var(--text-secondary);">ملف الملزمة (PDF):</label>
+            <input type="file" id="lecturePdfInput" accept="application/pdf">
+
+            <label style="font-size: 0.85rem; color: var(--text-secondary);">تسجيل صوت الدكتور:</label>
+            <button class="btn btn-outline" id="recBtn" onclick="toggleRecord()">🎤 بدء التسجيل</button>
+            <input type="file" id="lectureAudioFile" accept="audio/*">
+
+            <button class="btn" onclick="saveLecture()">حفظ المحاضرة في المادة</button>
         </div>
 
-        <!-- 5. قسم الاختبارات المخصص بالذكاء الاصطناعي -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>📚 أرشيف المواد والمحاضرات</h2>
+            <div id="subjectsContainer"><p style="color: var(--text-secondary);">لا توجد مواد مضافة بعد.</p></div>
+        </div>
+    </div>
+
+    <!-- ================= القائمة الثانية: الامتحانات (Quiz & Flashcards) ================= -->
+    <div id="tab-exams" class="app-section">
         <div class="card">
-            <h2>📝 اختبار الذكاء الاصطناعي (AI Quiz)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">اختر المادة أو اكتب موضوع المحاضرة ليقوم الذكاء الاصطناعي بتوليد سؤال اختبار:</p>
-            <input type="text" id="quizTopicInput" placeholder="مثال: ميكانيكا الموائع، بوليمرات، تفاعلات...">
-            <button class="btn" onclick="generateAiQuiz()">✨ توليد سؤال اختبار جديد</button>
-            <div id="aiQuizContainer" style="margin-top: 10px; display: none;">
-                <p id="aiQuestionText" style="font-weight: 600; margin-bottom: 10px;"></p>
-                <div id="aiOptionsList"></div>
-                <div id="aiQuizFeedback" style="margin-top: 10px; font-weight: bold; font-size: 0.9rem;"></div>
+            <h2>📝 اختبار نفسك بالذكاء الاصطناعي (Quiz)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">اكتب اسم الموضوع أو المادة ليتم توليد امتحان اختباري لك:</p>
+            <input type="text" id="quizTopic" placeholder="مثال: هندسة البوليمرات، خواص الموائع...">
+            <button class="btn" onclick="generateQuiz()">✨ توليد أسئلة الامتحان</button>
+            
+            <div id="quizArea" style="margin-top: 15px; display: none;">
+                <p id="qText" style="font-weight: 600; margin-bottom: 10px;"></p>
+                <div id="qOptions"></div>
+                <p id="qFeedback" style="margin-top: 10px; font-weight: bold;"></p>
             </div>
         </div>
 
-        <!-- 6. الذكاء الاصطناعي والتلخيص -->
         <div class="card">
-            <h2>✨ تلخيص المحاضرات والملازم</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="ضع نص الملزمة هنا لتلخيصه واستخراج النقاط المهمة..."></textarea>
-            <button class="btn" onclick="summarizeContent()">📝 تلخيص المادة</button>
-            <div id="aiResult" style="margin-top: 10px; font-size: 0.9rem; color: var(--accent);"></div>
+            <h2>⚡ فلاش كارد (Flashcards للمراجعة السريعة)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">بطاقات ذكية للمعلومات المهمة (اضغط على البطاقة لقلبها ومعرفة الإجابة):</p>
+            <input type="text" id="flashTopic" placeholder="اكتب المادة للمراجعة (مثال: مقاومة مواد)...">
+            <button class="btn btn-outline" onclick="generateFlashcard()">🔄 توليد بطاقات جديدة</button>
+            
+            <div class="flashcard" id="flashcardBox" onclick="flipCard()">
+                <span id="flashText">اضغط على زر التوليد لبدء البطاقات التعليمية 💡</span>
+            </div>
         </div>
+    </div>
 
-        <!-- 7. مسجل الصوت -->
-        <div class="card">
-            <h2>🎙️ تسجيل المحاضرة الصوتية</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">سجل صوت الدكتور للاستماع إليه بالخلفية بجانب التطبيقات:</p>
-            <button class="btn" id="recordBtn" onclick="toggleRecording()">🎤 بدء تسجيل المحاضرة</button>
-            <audio id="audioPlayer" controls style="display:none;"></audio>
-        </div>
+    <!-- ================= القائمة الثالثة: المساعد الذكي الشبابي ================= -->
+    <div id="tab-ai" class="app-section">
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>🤖 المساعد الذكي (يشرح لك بأسلوب شبابي وبسيط)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">اسأل عن أي تعقيد بالمادة، وسيبسطها لك كأنك تسأل صديقك الفاهم:</p>
+            
+            <div class="chat-box" id="chatContainer">
+                <div class="chat-msg bot-msg">هلا بيك يا بطل! ✌️ أنا صديقك ومساعدك الذكي، سألني عن أي قانون أو مادة صعبة ومدري شلونهة، وراح أبسطها لك بأبسط كلام وبدون تعقيد!</div>
+            </div>
 
-        <!-- 8. البحث في المصادر الرسمية -->
-        <div class="card">
-            <h2>🔍 المصادر العلمية الرسمية</h2>
-            <input type="text" id="scholarQuery" placeholder="ابحث في الأبحاث والمصادر الأكاديمية...">
-            <button class="btn" onclick="searchScholar()">ابحث في Google Scholar</button>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="userChatInput" placeholder="اكتب سؤالك هنا (مثال: شنو يعني لزوجة؟)..." onkeypress="if(event.key === 'Enter') sendToAi()">
+                <button class="btn" onclick="sendToAi()">إرسال 🚀</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. PIN Code & Change PIN ---
+        // --- 1. النظام الأمني (PIN) ---
         let savedPin = localStorage.getItem('app_pin') || '1234';
         function unlockApp() {
             const input = document.getElementById('pinInput').value;
             if (input === savedPin) {
                 document.getElementById('pinModal').style.display = 'none';
             } else {
-                alert('الرمز السرّي غير صحيح! (الافتراضي: 1234)');
+                alert('الرمز السرّي غير صحيح!');
             }
         }
 
-        function changePin() {
-            const oldP = document.getElementById('oldPin').value;
-            const newP = document.getElementById('newPin').value;
-            
-            if (oldP !== savedPin) {
-                alert('الرمز السري القديم غير صحيح!');
-                return;
-            }
-            if (!newP || newP.length !== 4) {
-                alert('يرجى إدخال رمز جديد مكون من 4 أرقام حصراً!');
-                return;
-            }
-            
-            localStorage.setItem('app_pin', newP);
-            savedPin = newP;
-            document.getElementById('oldPin').value = '';
-            document.getElementById('newPin').value = '';
-            alert('تم تغيير الرمز السري بنجاح! احتفظ به جيداً.');
+        // --- 2. التبويبات ---
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
         }
 
-        // --- 2. Light / Dark Mode ---
-        function toggleTheme() {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark'); html.classList.add('light');
-            } else {
-                html.classList.remove('light'); html.classList.add('dark');
-            }
+        // --- 3. قاعدة البيانات المحلية والمواد ---
+        let db = JSON.parse(localStorage.getItem('academic_db')) || [];
+
+        function saveDb() {
+            localStorage.setItem('academic_db', JSON.stringify(db));
+            renderSubjects();
         }
 
-        // --- 3. Save Email ---
-        function saveEmail() {
-            const email = document.getElementById('emailInput').value;
-            if (email) {
-                localStorage.setItem('user_email', email);
-                document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-                alert('تم حفظ الحساب بنجاح!');
+        function addSubject() {
+            const name = document.getElementById('newSubjectName').value.trim();
+            if (!name) { alert('يرجى كتابة اسم المادة'); return; }
+            db.push({ id: Date.now(), name: name, lectures: [] });
+            document.getElementById('newSubjectName').value = '';
+            saveDb();
+        }
+
+        function deleteSubject(subId) {
+            if(confirm('متأكد من حذف المادة بالكامل؟')) {
+                db = db.filter(s => s.id !== subId);
+                saveDb();
             }
         }
 
-        // --- 4. AI Quiz Generator ---
-        function generateAiQuiz() {
-            const topic = document.getElementById('quizTopicInput').value;
-            const major = document.getElementById('majorSelect').value;
-            if(!topic) {
-                alert('يرجى كتابة اسم المادة أو موضوع المحاضرة أولاً!');
-                return;
-            }
-
-            const container = document.getElementById('aiQuizContainer');
-            const qText = document.getElementById('aiQuestionText');
-            const optList = document.getElementById('aiOptionsList');
-            const feedback = document.getElementById('aiQuizFeedback');
-
-            container.style.display = 'block';
-            qText.innerText = `جاري توليد سؤال ذكي لاختصاص (${major || 'عام'}) في مادة (${topic})...`;
-            optList.innerHTML = '';
-            feedback.innerText = '';
-
-            setTimeout(() => {
-                qText.innerText = `س (من الذكاء الاصطناعي): ما هو التطبيق الأساسي أو المبدأ العلمي لـ "${topic}"؟`;
-                
-                const mockOptions = [
-                    { text: "أ) تحسين الكفاءة التشغيلية وتقليل استهلاك الطاقة والزمن", correct: true },
-                    { text: "ب) زيادة الضغط الحراري بدون تأثير مباشر على المخرجات", correct: false },
-                    { text: "ج) إيقاف التفاعلات الكيميائية والفيزيائية تماماً", correct: false }
-                ];
-
-                optList.innerHTML = mockOptions.map((opt, idx) => `
-                    <div class="quiz-option" onclick="checkAiAnswer(this, ${opt.correct})">${opt.text}</div>
-                `).join('');
-            }, 1200);
-        }
-
-        function checkAiAnswer(element, isCorrect) {
-            const options = document.querySelectorAll('#aiOptionsList .quiz-option');
-            options.forEach(opt => opt.style.pointerEvents = 'none');
-            const feedback = document.getElementById('aiQuizFeedback');
-            if (isCorrect) {
-                element.classList.add('correct');
-                feedback.style.color = '#10B981';
-                feedback.innerText = '✅ إجابة صحيحة، أحسنت!';
-            } else {
-                element.classList.add('wrong');
-                feedback.style.color = '#EF4444';
-                feedback.innerText = '❌ إجابة خاطئة، الخيار الصحيح هو الأول.';
+        function deleteLecture(subId, lecId) {
+            const sub = db.find(s => s.id === subId);
+            if (sub) {
+                sub.lectures = sub.lectures.filter(l => l.id !== lecId);
+                saveDb();
             }
         }
 
-        // --- 5. Audio Recorder ---
-        let mediaRecorder; let audioChunks = [];
-        async function toggleRecording() {
-            const btn = document.getElementById('recordBtn');
-            const player = document.getElementById('audioPlayer');
+        // --- 4. تسجيل الصوت والمحاضرات ---
+        let mediaRecorder; let audioChunks = []; let currentAudioBase64 = '';
+        async function toggleRecord() {
+            const btn = document.getElementById('recBtn');
             if (!mediaRecorder || mediaRecorder.state === 'inactive') {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
@@ -309,36 +269,171 @@
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
             } else {
                 mediaRecorder.stop();
-                btn.innerText = '🎤 بدء تسجيل جديد';
+                btn.innerText = '🎤 تسجيل مجدداً';
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    player.src = URL.createObjectURL(blob);
-                    player.style.display = 'block';
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => { currentAudioBase64 = reader.result; alert('تم تسجيل الصوت بنجاح!'); };
                 };
             }
         }
 
-        // --- 6. Scholar Search ---
-        function searchScholar() {
-            const query = document.getElementById('scholarQuery').value;
-            if (query) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`, '_blank');
+        function saveLecture() {
+            const subId = Number(document.getElementById('subjectSelect').value);
+            const title = document.getElementById('lectureTitleInput').value.trim();
+            const pdfFile = document.getElementById('lecturePdfInput').files[0];
+            const audioFileInput = document.getElementById('lectureAudioFile').files[0];
+
+            if (!subId || !title) { alert('اختر المادة وعنوان المحاضرة أولاً'); return; }
+            const subject = db.find(s => s.id === subId);
+            if (!subject) return;
+
+            const newLec = { id: Date.now(), title: title, pdfName: pdfFile ? pdfFile.name : null, audioData: currentAudioBase64 };
+
+            if (audioFileInput && !currentAudioBase64) {
+                const reader = new FileReader();
+                reader.readAsDataURL(audioFileInput);
+                reader.onloadend = () => {
+                    newLec.audioData = reader.result;
+                    subject.lectures.push(newLec);
+                    resetForm(); saveDb();
+                };
+            } else {
+                subject.lectures.push(newLec);
+                resetForm(); saveDb();
+            }
         }
 
-        // --- 7. AI Summary ---
-        function summarizeContent() {
-            const text = document.getElementById('aiPrompt').value;
-            const res = document.getElementById('aiResult');
-            if(!text) { alert('الرجاء إدخال النص أولاً'); return; }
-            res.innerText = 'جاري التلخيص بواسطة الذكاء الاصطناعي...';
+        function resetForm() {
+            document.getElementById('lectureTitleInput').value = '';
+            document.getElementById('lecturePdfInput').value = '';
+            document.getElementById('lectureAudioFile').value = '';
+            currentAudioBase64 = '';
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjectsContainer');
+            const select = document.getElementById('subjectSelect');
+            select.innerHTML = '<option value="">اختر المادة...</option>';
+            if (db.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">لا توجد مواد مضافة بعد.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            db.forEach(sub => {
+                select.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
+                let lecsHtml = sub.lectures.length === 0 ? '<p style="color: #64748B; font-size: 0.85rem;">لا توجد محاضرات مضافة بعد.</p>' : '';
+                sub.lectures.forEach(lec => {
+                    lecsHtml += `
+                        <div class="lecture-item">
+                            <div class="lecture-title">📌 ${lec.title}</div>
+                            <div class="lecture-actions">
+                                ${lec.pdfName ? `<span style="font-size: 0.8rem; color: #A78BFA;">📄 ${lec.pdfName}</span>` : ''}
+                                <button class="btn-danger" onclick="deleteLecture(${sub.id}, ${lec.id})">حذف المحاضرة</button>
+                            </div>
+                            ${lec.audioData ? `<audio controls src="${lec.audioData}"></audio>` : ''}
+                        </div>
+                    `;
+                });
+                container.innerHTML += `
+                    <div class="subject-box">
+                        <div class="subject-header">
+                            <span>📂 ${sub.name} (${sub.lectures.length} محاضرات)</span>
+                            <button class="btn-danger" onclick="deleteSubject(${sub.id})">حذف المادة</button>
+                        </div>
+                        ${lecsHtml}
+                    </div>
+                `;
+            });
+        }
+
+        // --- 5. نظام الامتحانات والتوليد الذكي للأسئلة ---
+        function generateQuiz() {
+            const topic = document.getElementById('quizTopic').value;
+            if(!topic) { alert('اكتب اسم الموضوع أولاً!'); return; }
+            
+            const area = document.getElementById('quizArea');
+            const qText = document.getElementById('qText');
+            const qOpts = document.getElementById('qOptions');
+            const qFeed = document.getElementById('qFeedback');
+            
+            area.style.display = 'block';
+            qText.innerText = `جاري توليد سؤال ذكي حول مادة (${topic})...`;
+            qOpts.innerHTML = ''; qFeed.innerText = '';
+
             setTimeout(() => {
-                res.innerHTML = '<strong>📌 الملخص الذكي:</strong><br>تم استخلاص أهم النقاط المفتاحية للمحاضرة بنجاح!';
-            }, 1200);
+                qText.innerText = `س: ما هي الميزة الأساسية أو المبدأ العلمي لـ "${topic}"؟`;
+                const options = [
+                    { text: "أ) تحسين الأداء العام ورفع الكفاءة التشغيلية", correct: true },
+                    { text: "ب) تعطيل الخواص الكيميائية والفيزيائية تماماً", correct: false },
+                    { text: "ج) زيادة استهلاك الطاقة بدون فائدة", correct: false }
+                ];
+                qOpts.innerHTML = options.map(opt => `
+                    <div class="quiz-option" onclick="checkQuiz(this, ${opt.correct})">${opt.text}</div>
+                `).join('');
+            }, 1000);
         }
 
-        window.onload = () => {
-            const email = localStorage.getItem('user_email');
-            if (email) document.getElementById('userEmailDisplay').innerText = 'المستخدم: ' + email;
-        };
+        function checkQuiz(el, isCorrect) {
+            document.querySelectorAll('.quiz-option').forEach(o => o.style.pointerEvents = 'none');
+            const feed = document.getElementById('qFeedback');
+            if(isCorrect) {
+                el.classList.add('correct');
+                feed.style.color = '#10B981';
+                feed.innerText = '✅ إجابة صحيحة، عاش ايدك يا بطل!';
+            } else {
+                el.classList.add('wrong');
+                feed.style.color = '#EF4444';
+                feed.innerText = '❌ إجابة خاطئة، الخيار الأول هو الصحيح.';
+            }
+        }
+
+        // --- 6. الفلاش كارد (Flashcards) ---
+        let flashCardsList = [
+            { q: "ما هو التعريف البسيط للبوليمرات؟", a: "جزيئات عملاقة مترابطة تتكون من تكرار جزيئات أصغر تسمى المونومرات." },
+            { q: "ما هي فائدة ميكانيكا الموائع؟", a: "دراسة سلوك السوائل والغازات سواء كانت في حالة سكون أو حركة." }
+        ];
+        let currentCardIdx = 0;
+        let isFlipped = false;
+
+        function generateFlashcard() {
+            const topic = document.getElementById('flashTopic').value;
+            if(topic) {
+                flashCardsList.push({ q: `سؤال ذكي مقترح لـ "${topic}":`, a: `هذا المفهوم يعتمد على التطبيق العملي وكفاءة المنظومة.` });
+            }
+            currentCardIdx = (currentCardIdx + 1) % flashCardsList.length;
+            isFlipped = false;
+            document.getElementById('flashText').innerText = flashCardsList[currentCardIdx].q;
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            const card = flashCardsList[currentCardIdx];
+            document.getElementById('flashText').innerText = isFlipped ? card.a : card.q;
+        }
+
+        // --- 7. المساعد الذكي الشبابي (AI Tutor) ---
+        function sendToAi() {
+            const input = document.getElementById('userChatInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const container = document.getElementById('chatContainer');
+            container.innerHTML += `<div class="chat-msg user-msg">${text}</div>`;
+            input.value = '';
+
+            setTimeout(() => {
+                let reply = "ولا تشيل همها! باختصار شديد: الفكرة تتمثل بإننا ندرس الأساسيات ونربطها بالتطبيق العملي حتى تصير السالفة واضحة وسهلة بالحفظ.";
+                if(text.includes('لزوجة')) reply = "اللزوجة باختصار هي 'ثخن السائل'! يعني مثلاً الماي جاري وخفيف (لزوجته قليلة)، بس العسل ثخين وبطيء بالحركة (لزوجته عالية). وصلتك الفكرة؟ 😎";
+                if(text.includes('سلام') || text.includes('هلا')) reply = "هلا بيك يا غالي! شعدنا اليوم؟ شنو المادة الصعبة حتى نبسطها سويّة؟";
+
+                container.innerHTML += `<div class="chat-msg bot-msg">${reply}</div>`;
+                container.scrollTop = container.scrollHeight;
+            }, 800);
+        }
+
+        window.onload = renderSubjects;
     </script>
 </body>
 </html>
