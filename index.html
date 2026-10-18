@@ -66,7 +66,6 @@
         .btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
         audio { width: 100%; margin-top: 10px; border-radius: 8px; }
 
-        /* Quiz styles */
         .quiz-option {
             background: var(--bg-primary); border: 1px solid var(--border); padding: 10px; border-radius: 8px;
             cursor: pointer; margin-top: 6px; text-align: right;
@@ -78,11 +77,11 @@
 </head>
 <body>
 
-    <!-- 1. شاشة القفل بالرمز السرّي (PIN Screen) -->
+    <!-- 1. شاشة القفل بالرمز السرّي -->
     <div id="pinModal">
         <div class="modal-content">
             <h2 style="color: var(--accent); margin-bottom: 15px;">🔒 الرمز السرّي الخاص بك</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق (افتراضي: 1234)</p>
+            <p style="color: var(--text-secondary); margin-bottom: 15px;">ادخل رمز من 4 أرقام لفتح التطبيق (الافتراضي: 1234)</p>
             <input type="password" id="pinInput" maxlength="4" placeholder="••••" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 15px;">
             <button class="btn" style="width: 100%;" onclick="unlockApp()">فتح التطبيق</button>
         </div>
@@ -98,11 +97,18 @@
     </header>
 
     <div class="grid">
-        <!-- 3. حساب الطالب -->
+        <!-- 3. حساب الطالب وإدارة الرمز السري -->
         <div class="card">
-            <h2>📧 حساب الطالب الجامعي</h2>
+            <h2>📧 حساب الطالب والأمان</h2>
             <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني الجامعي...">
             <button class="btn" onclick="saveEmail()">حفظ الحساب</button>
+            
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 5px 0;">
+            
+            <p style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تغيير رمز الـ PIN (4 أرقام):</p>
+            <input type="password" id="oldPin" maxlength="4" placeholder="الرمز القديم...">
+            <input type="password" id="newPin" maxlength="4" placeholder="الرمز الجديد...">
+            <button class="btn btn-outline" onclick="changePin()">تحديث الرمز السري</button>
         </div>
 
         <!-- 4. مكتبة الملازم واختيار الأقسام العراقية الشاملة -->
@@ -154,7 +160,7 @@
         <!-- 5. قسم الاختبارات المخصص بالذكاء الاصطناعي -->
         <div class="card">
             <h2>📝 اختبار الذكاء الاصطناعي (AI Quiz)</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">اختر المادة أو اكتب موضوع المحاضرة ليقوم الذكاء الاصطناعي بتوليد سؤال اختبار خاص بك:</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">اختر المادة أو اكتب موضوع المحاضرة ليقوم الذكاء الاصطناعي بتوليد سؤال اختبار:</p>
             <input type="text" id="quizTopicInput" placeholder="مثال: ميكانيكا الموائع، بوليمرات، تفاعلات...">
             <button class="btn" onclick="generateAiQuiz()">✨ توليد سؤال اختبار جديد</button>
             <div id="aiQuizContainer" style="margin-top: 10px; display: none;">
@@ -189,7 +195,7 @@
     </div>
 
     <script>
-        // --- 1. PIN Code ---
+        // --- 1. PIN Code & Change PIN ---
         let savedPin = localStorage.getItem('app_pin') || '1234';
         function unlockApp() {
             const input = document.getElementById('pinInput').value;
@@ -198,6 +204,26 @@
             } else {
                 alert('الرمز السرّي غير صحيح! (الافتراضي: 1234)');
             }
+        }
+
+        function changePin() {
+            const oldP = document.getElementById('oldPin').value;
+            const newP = document.getElementById('newPin').value;
+            
+            if (oldP !== savedPin) {
+                alert('الرمز السري القديم غير صحيح!');
+                return;
+            }
+            if (!newP || newP.length !== 4) {
+                alert('يرجى إدخال رمز جديد مكون من 4 أرقام حصراً!');
+                return;
+            }
+            
+            localStorage.setItem('app_pin', newP);
+            savedPin = newP;
+            document.getElementById('oldPin').value = '';
+            document.getElementById('newPin').value = '';
+            alert('تم تغيير الرمز السري بنجاح! احتفظ به جيداً.');
         }
 
         // --- 2. Light / Dark Mode ---
@@ -220,7 +246,7 @@
             }
         }
 
-        // --- 4. AI Quiz Generator Simulation / Smart Quiz ---
+        // --- 4. AI Quiz Generator ---
         function generateAiQuiz() {
             const topic = document.getElementById('quizTopicInput').value;
             const major = document.getElementById('majorSelect').value;
@@ -240,7 +266,6 @@
             feedback.innerText = '';
 
             setTimeout(() => {
-                // محاكاة استجابة ذكاء اصطناعي مخصصة حسب الموضوع المدرخل
                 qText.innerText = `س (من الذكاء الاصطناعي): ما هو التطبيق الأساسي أو المبدأ العلمي لـ "${topic}"؟`;
                 
                 const mockOptions = [
@@ -249,7 +274,6 @@
                     { text: "ج) إيقاف التفاعلات الكيميائية والفيزيائية تماماً", correct: false }
                 ];
 
-                // خلط الخيارات عشوائياً
                 optList.innerHTML = mockOptions.map((opt, idx) => `
                     <div class="quiz-option" onclick="checkAiAnswer(this, ${opt.correct})">${opt.text}</div>
                 `).join('');
