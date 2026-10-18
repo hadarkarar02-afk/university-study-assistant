@@ -7,18 +7,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #F8FAFC; color: #0F172A; display: flex; min-height: 100vh; overflow-x: hidden; }
+        body { background: #F8FAFC; color: #0F172A; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
 
-        /* القائمة الجانبية (Sidebar) */
+        /* القائمة الجانبية (Sidebar) مثبتة على اليمين بدقة */
         aside {
             width: 260px; background: #6D28D9; color: white; display: flex; flex-direction: column;
-            justify-content: space-between; padding: 25px 15px; position: fixed; height: 100vh; left: 0; top: 0;
+            justify-content: space-between; padding: 25px 15px; position: fixed; height: 100vh; right: 0; top: 0; z-index: 100;
         }
-        .sidebar-top h2 { font-size: 0.9rem; color: #DDD6FE; margin-bottom: 20px; padding-right: 10px; }
+        .sidebar-top h2 { font-size: 1rem; color: #DDD6FE; margin-bottom: 20px; padding-right: 10px; }
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
         .nav-links li a {
             display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: white; text-decoration: none;
-            border-radius: 12px; font-weight: 500; font-size: 0.95srem; transition: 0.2s;
+            border-radius: 12px; font-weight: 500; font-size: 0.95rem; transition: 0.2s;
         }
         .nav-links li.active a, .nav-links li a:hover { background: white; color: #6D28D9; font-weight: 700; }
         
@@ -27,21 +27,15 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* المحتوى الرئيسي (Main Content) */
+        /* المحتوى الرئيسي مع ترك مساحة دقيقة للقائمة الجانبية */
         main {
-            margin-left: 0; margin-right: 260px; /* بما أن الاتجاه RTL، فالقائمة على اليمين برمجياً أو نعكسها */
-            flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 25px; width: calc(100% - 260px);
+            margin-right: 260px; flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 25px; width: calc(100% - 260px);
         }
-
-        /* تعديل لأن العرض RTL باللغة العربية: القائمة تكون على اليمين */
-        body { direction: rtl; }
-        aside { left: auto; right: 0; }
-        main { margin-right: 0; margin-left: 260px; }
 
         @media(max-width: 900px) {
             aside { width: 70px; padding: 20px 8px; }
-            aside h2, .nav-links span, .sidebar-box { display: none; }
-            main { margin-left: 70px; width: calc(100% - 70px); padding: 15px; }
+            .sidebar-top h2, .nav-links span, .sidebar-box { display: none; }
+            main { margin-right: 70px; width: calc(100% - 70px); padding: 15px; }
         }
 
         /* البانر الرئيسي الكبير */
@@ -50,7 +44,7 @@
             color: white; border-radius: 24px; padding: 40px; position: relative; overflow: hidden;
             display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
         }
-        .hero-banner h1 { font-size: 2rem; font-weight: 700; max-width: 600px; line-height: 1.3; }
+        .hero-banner h1 { font-size: 1.8rem; font-weight: 700; max-width: 600px; line-height: 1.3; }
         .hero-banner p { color: #E9D5FF; font-size: 0.95rem; max-width: 550px; }
         .hero-btn {
             background: white; color: #6D28D9; border: none; padding: 10px 20px; border-radius: 12px;
@@ -69,7 +63,7 @@
         .stat-card .label { font-size: 0.85rem; color: #94A3B8; margin-top: 5px; }
         .stat-icon { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; font-size: 1.2rem; }
 
-        /* قسم إضافة مواد ومحتوى المراحل */
+        /* قسم المواد ومحتوى المراحل */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .section-header h3 { font-size: 1.2rem; font-weight: 700; }
         .add-material-link { color: #6D28D9; text-decoration: none; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
@@ -91,36 +85,34 @@
 </head>
 <body>
 
-    <!-- القائمة الجانبية (Sidebar) مطابقة للصورة -->
+    <!-- القائمة الجانبية (Sidebar) على اليمين -->
     <aside>
         <div class="sidebar-top">
             <h2>مساحة التعلُّم</h2>
             <ul class="nav-links">
-                <li class="active"><a href="#">📖 الرئيسية</a></li>
-                <li><a href="#">📚 المواد</a></li>
-                <li><a href="#">📄 ملفات PDF</a></li>
-                <li><a href="#">🎧 المحاضرات</a></li>
-                <li><a href="#">✨ الذكاء الاصطناعي</a></li>
-                <li><a href="#">🔍 مصادر علمية</a></li>
+                <li class="active"><a href="#">📖 <span>الرئيسية</span></a></li>
+                <li><a href="#">📚 <span>المواد</span></a></li>
+                <li><a href="#">📄 <span>ملفات PDF</span></a></li>
+                <li><a href="#">🎧 <span>المحاضرات</span></a></li>
+                <li><a href="#">✨ <span>الذكاء الاصطناعي</span></a></li>
+                <li><a href="#">🔍 <span>مصادر علمية</span></a></li>
             </ul>
         </div>
         <div class="sidebar-box">
-            <p>📌 ملفاتك وتسجيلاتك محفوظة على هذا الجهاز. قد يستخدم المتصفح خدمة خارجية عند تفعيل التفريغ الحي.</p>
+            <p>📌 ملفاتك وتسجيلاتك محفوظة على هذا الجهاز.</p>
         </div>
     </aside>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى الرئيسي (مزيح لليسار بمقدار عرض القائمة) -->
     <main>
-        <!-- البانر البنفسجي الكبير -->
         <div class="hero-banner">
             <h1>مساعدك الدراسي لكل التخصصات.<br>كل محاضرة وملف، في مكان تعرفه.</h1>
-            <p>نظّم موادك، اقرأ مراجعك، وسجّل شرح المحاضرة—بخصوصية محلية على جهازك.</p>
+            <p>نظّم موادك، اقرأ مراجعك، وسجّل شرح المحاضرة—بخصوصية محلية على جهازك[cite: 3].</p>
             <button class="hero-btn" onclick="alert('اضغط لرفع ملف PDF جديد')">
                 <span>➕ أضف ملف PDF</span>
             </button>
         </div>
 
-        <!-- بطاقات الإحصائيات (3 خانات مثل الصورة) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div>
@@ -145,14 +137,12 @@
             </div>
         </div>
 
-        <!-- قسم إضافة مواد ومحتوى المرحلة الأولى -->
         <div class="section-header">
             <h3>ابدأ بإضافة مواد تخصصك</h3>
             <a href="#" class="add-material-link">إضافة مواد ‹</a>
         </div>
 
         <div class="content-grid">
-            <!-- المرحلة الأولى -->
             <div class="stage-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h4>المرحلة الأولى</h4>
@@ -169,7 +159,6 @@
                 </div>
             </div>
 
-            <!-- آخر الملفات والمكتبة -->
             <div class="recent-files">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h4 style="color: #0F172A;">آخر الملفات</h4>
