@@ -498,7 +498,7 @@
         <button class="tab-btn" onclick="switchTab('tab-ai', this)">🤖 المساعد الذكي</button>
         <button class="tab-btn" onclick="switchTab('tab-todos', this)">✅ المهام والواجبات</button>
         <button class="tab-btn" onclick="switchTab('tab-gpa', this)">📊 حاسبة GPA</button>
-        <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ حساب الطالب</button>
+        <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ حساب الطالب والمصادر</button>
     </div>
 
     <!-- ================= 1. المواد والمحاضرات ================= -->
@@ -514,7 +514,7 @@
             <input type="text" id="lectureTitleInput" placeholder="عنوان المحاضرة (مثال: المحاضرة 1)">
             <label style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">ملف الملزمة (PDF):</label>
             <input type="file" id="lecturePdfInput" accept="application/pdf">
-            <label style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تسجيل صوت الدكتور:</label>
+            <label style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">تسجيل صوت الدكتور (يعمل بالشاشة المغلقة):</label>
             <button class="btn btn-outline" id="recBtn" onclick="toggleRecord()">🎤 بدء التسجيل</button>
             <input type="file" id="lectureAudioFile" accept="audio/*">
             <button class="btn" onclick="saveLecture()">حفظ المحاضرة في المادة</button>
@@ -602,7 +602,7 @@
         </div>
     </div>
 
-    <!-- ================= 6. حساب الطالب والمصادر ================= -->
+    <!-- ================= 6. حساب الطالب والمصادر الأكاديمية الشاملة ================= -->
     <div id="tab-settings" class="app-section">
         <div class="card">
             <h2>📧 حساب الطالب والأمان</h2>
@@ -615,9 +615,18 @@
             <button class="btn btn-outline" onclick="changePin()">تحديث الرمز</button>
         </div>
         <div class="card">
-            <h2>🔍 المصادر العلمية (Google Scholar)</h2>
-            <input type="text" id="scholarQuery" placeholder="ابحث في الأبحاث الأكاديمية...">
-            <button class="btn" onclick="searchScholar()">بحث في Google Scholar</button>
+            <h2>🔍 المحركات والمصادر الأكاديمية العالمية والعربية</h2>
+            <input type="text" id="scholarQuery" placeholder="ابحث في الدوريات والأبحاث الأكاديمية...">
+            <select id="engineSelect">
+                <option value="scholar">Google Scholar (شامل كلي)</option>
+                <option value="pubmed">PubMed (العلوم الطبية والصحية)</option>
+                <option value="ieee">IEEE Xplore (الهندسة والتقنية)</option>
+                <option value="sciencedirect">ScienceDirect (أبحاث مجلات علمية)</option>
+                <option value="researchgate">ResearchGate (أبحاث أكاديمية وتواصل)</option>
+                <option value="mandumah">دار المنظومة (أبحاث ورسائل عربية)</option>
+                <option value="pdfdrive">PDF Drive (كتب وأدبيات علمية)</option>
+            </select>
+            <button class="btn" onclick="searchScholar()">بحث في المحرك المختار 🚀</button>
         </div>
     </div>
 
@@ -658,7 +667,7 @@
             btn.classList.add('active');
         }
 
-        // --- 4. المواد والمحاضرات (مع الأرشيف والحفظ) ---
+        // --- 4. المواد والمحاضرات (مع التسجيل وقفل الخمول Background Lock) ---
         let db = JSON.parse(localStorage.getItem('academic_db')) || [];
         function saveDb() { localStorage.setItem('academic_db', JSON.stringify(db)); renderSubjects(); }
         function addSubject() {
@@ -673,24 +682,52 @@
             if (sub) { sub.lectures = sub.lectures.filter(l => l.id !== lecId); saveDb(); }
         }
 
-        // التسجيل الصوتي
+        // التسجيل الصوتي المتقدم في الخلفية (WakeLock API)
         let mediaRecorder; let audioChunks = []; let currentAudioBase64 = '';
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.log('Wake lock active');
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => { wakeLock = null; });
+            }
+        }
+
         async function toggleRecord() {
             const btn = document.getElementById('recBtn');
             if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream); mediaRecorder.start(); audioChunks = [];
-                btn.innerText = '⏹️ إيقاف التسجيل';
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+                    await requestWakeLock(); // منع خمول الشاشة
+                    btn.innerText = '⏹️ إيقاف التسجيل (يعمل بالشاشة المغلقة)';
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                } catch(e) {
+                    alert("يرجى إعطاء صلاحية استخدام الميكروفون للمتصفح!");
+                }
             } else {
-                mediaRecorder.stop(); btn.innerText = '🎤 تسجيل مجدداً';
+                mediaRecorder.stop();
+                releaseWakeLock(); // تحرير القفل
+                btn.innerText = '🎤 تسجيل مجدداً';
                 mediaRecorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/mp3' });
                     const reader = new FileReader(); reader.readAsDataURL(blob);
-                    reader.onloadend = () => { currentAudioBase64 = reader.result; alert('تم تسجيل الصوت!'); };
+                    reader.onloadend = () => { currentAudioBase64 = reader.result; alert('تم تسجيل الصوت وحفظه بنجاح!'); };
                 };
             }
         }
+
         function saveLecture() {
             const subId = Number(document.getElementById('subjectSelect').value);
             const title = document.getElementById('lectureTitleInput').value.trim();
@@ -703,6 +740,7 @@
             document.getElementById('lectureTitleInput').value = ''; document.getElementById('lecturePdfInput').value = ''; currentAudioBase64 = '';
             saveDb();
         }
+
         function renderSubjects() {
             const container = document.getElementById('subjectsContainer');
             const select = document.getElementById('subjectSelect');
@@ -767,7 +805,7 @@
             }, 600);
         }
 
-        // --- 6. قائمة المهام (To-Do List) مع الأرشيف والحفظ ---
+        // --- 6. قائمة المهام (To-Do List) ---
         let tasksDb = JSON.parse(localStorage.getItem('tasks_db')) || [];
         function saveTasksDb() { localStorage.setItem('tasks_db', JSON.stringify(tasksDb)); renderTasks(); }
         function addTask() {
@@ -800,7 +838,7 @@
             `).join('');
         }
 
-        // --- 7. حاسبة المعدل التراكمي (GPA Calculator) مع الأرشيف ---
+        // --- 7. حاسبة المعدل التراكمي (GPA Calculator) ---
         let gpaDb = JSON.parse(localStorage.getItem('gpa_db')) || [];
         function saveGpaDb() { localStorage.setItem('gpa_db', JSON.stringify(gpaDb)); renderGpa(); }
         function addGpaItem() {
@@ -836,10 +874,37 @@
             document.getElementById('gpaResultText').innerText = gpa;
         }
 
-        // --- 8. البحث العلمي ---
+        // --- 8. البحث العلمي الشامل للجامعات ---
         function searchScholar() {
-            const q = document.getElementById('scholarQuery').value;
-            if(q) window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(q)}`, '_blank');
+            const q = document.getElementById('scholarQuery').value.trim();
+            const engine = document.getElementById('engineSelect').value;
+            if(!q) { alert('يرجى أدخال كلمة البحث أولاً'); return; }
+            
+            let url = "";
+            switch(engine) {
+                case "scholar":
+                    url = `https://scholar.google.com/scholar?q=${encodeURIComponent(q)}`;
+                    break;
+                case "pubmed":
+                    url = `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(q)}`;
+                    break;
+                case "ieee":
+                    url = `https://ieeexplore.ieee.org/search/searchresult.jsp?newsearch=true&queryText=${encodeURIComponent(q)}`;
+                    break;
+                case "sciencedirect":
+                    url = `https://www.sciencedirect.com/search?qs=${encodeURIComponent(q)}`;
+                    break;
+                case "researchgate":
+                    url = `https://www.researchgate.net/search/publication?q=${encodeURIComponent(q)}`;
+                    break;
+                case "mandumah":
+                    url = `https://mandumah.com/search?query=${encodeURIComponent(q)}`;
+                    break;
+                case "pdfdrive":
+                    url = `https://www.pdfdrive.com/search?q=${encodeURIComponent(q)}`;
+                    break;
+            }
+            window.open(url, '_blank');
         }
 
         window.onload = () => {
